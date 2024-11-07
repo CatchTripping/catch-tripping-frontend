@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
+import api from '../axios.js';
+import router from "@/router/index.js";
 
 // Reactive state
 const email = ref('')
@@ -12,14 +14,20 @@ const username = ref('')
 const password = ref('')
 const terms = ref(false)
 
-// Handle form submission
-const handleSubmit = () => {
-  console.log('Email:', email.value)
-  console.log('Full Name:', fullName.value)
-  console.log('Username:', username.value)
-  console.log('Password:', password.value)
-  console.log('Terms accepted:', terms.value)
-}
+const register = async () => {
+  try {
+    await api.post('/users/register', {
+      userName: username.value,
+      userPassword: password.value,
+      userEmail: email.value
+    });
+    alert('Registration successful! You can now log in.');
+    router.push('/');
+  } catch (error) {
+    console.error('Registration Failed: ', error);
+    alert('회원가입 실패. 다시 시도해 주세요.');
+  }
+};
 </script>
 
 <template>
@@ -34,7 +42,7 @@ const handleSubmit = () => {
           친구들의 사진과 동영상을 보려면 가입하세요.
         </p>
       </div>
-      <form class="space-y-4" @submit.prevent="handleSubmit">
+      <form class="space-y-4" @submit.prevent="register">
         <div class="space-y-2">
           <Label for="email" class="sr-only">이메일 주소</Label>
           <Input
@@ -90,10 +98,10 @@ const handleSubmit = () => {
       class="mt-4 w-full max-w-md bg-white rounded-lg shadow-md p-4 text-center"
     >
       <p class="text-sm">
-        계정이 있으신가요?{" "}
-        <a href="#" class="text-blue-500 font-semibold hover:underline">
+        계정이 있으신가요?
+        <router-link to="/login" class="text-blue-500 font-semibold hover:underline">
           로그인
-        </a>
+        </router-link>
       </p>
     </div>
   </div>
