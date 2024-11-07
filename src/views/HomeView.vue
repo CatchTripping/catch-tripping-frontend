@@ -1,26 +1,24 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import {
-  ChevronLeft,
+  BarChart,
   ChevronDown,
-  Bell,
-  Settings,
+  ChevronLeft,
+  HelpCircle,
   Home,
   Map,
-  BarChart,
   Users,
-  HelpCircle,
 } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
-  DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import Logo from '@/components/icon/MainLogo.vue' // 필요한 경우 로고 컴포넌트를 따로 임포트
+import Logo from '@/components/icon/MainLogo.vue'
 import HomeContent from '@/components/HomeContent.vue'
 import MapContent from '@/components/MapContent.vue'
 import StatsContent from '@/components/StatsContent.vue'
@@ -30,6 +28,9 @@ import HelpContent from '@/components/HelpContent.vue'
 // 상태 변수
 const isCollapsed = ref(false)
 const activeMenu = ref('home')
+
+// 드롭다운 상태 관리
+const isDropdownOpen = ref(false)
 
 // 윈도우 크기 변경에 따라 사이드바 크기 조정
 const handleResize = () => {
@@ -51,7 +52,7 @@ onBeforeUnmount(() => {
     <!-- Sidebar -->
     <aside
       :class="[
-        'bg-white min-h-screen flex flex-col transition-all duration-300',
+        'bg-white min-h-screen flex flex-col transition-all duration-300 relative',
         isCollapsed ? 'w-16' : 'w-64',
       ]"
     >
@@ -122,13 +123,17 @@ onBeforeUnmount(() => {
 
       <!-- User Profile Dropdown -->
       <div class="p-4 border-t">
-        <DropdownMenu>
+        <DropdownMenu v-model:open="isDropdownOpen">
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" class="w-full justify-start">
               <span v-if="!isCollapsed" class="ml-2">사용자 이름</span>
-              <ChevronDown class="ml-auto h-4 w-4" />
+              <ChevronDown
+                class="ml-auto h-4 w-4 transition-transform duration-300"
+                :class="{ 'rotate-180': isDropdownOpen }"
+              />
             </Button>
           </DropdownMenuTrigger>
+
           <DropdownMenuContent class="w-56">
             <DropdownMenuLabel>내 계정</DropdownMenuLabel>
             <DropdownMenuSeparator />
@@ -157,30 +162,6 @@ onBeforeUnmount(() => {
 
     <!-- Main Content -->
     <div class="flex-grow flex flex-col overflow-hidden">
-      <!-- Header -->
-      <header
-        class="bg-white shadow-sm p-4 flex items-center justify-between flex-shrink-0"
-      >
-        <h1 class="text-xl font-semibold">MapDash</h1>
-        <div class="flex items-center space-x-2">
-          <Button size="icon" variant="ghost">
-            <Bell class="h-5 w-5" />
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <Settings class="h-5 w-5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>설정</DropdownMenuItem>
-              <DropdownMenuItem>테마</DropdownMenuItem>
-              <DropdownMenuItem>언어</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </header>
-
       <!-- Scrollable Content -->
       <main class="flex-grow p-6 overflow-auto bg-gray-100 space-y-6">
         <!-- 동적 컴포넌트 렌더링 -->

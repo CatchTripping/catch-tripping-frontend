@@ -25,7 +25,10 @@ const handleSlideChange = (postIndex, direction) => {
       if (direction === 'prev') {
         return Math.max(0, slide - 1)
       } else {
-        return Math.min(postsStore.getPosts[postIndex].images.length - 1, slide + 1)
+        return Math.min(
+          postsStore.getPosts[postIndex].images.length - 1,
+          slide + 1,
+        )
       }
     }
     return slide
@@ -77,7 +80,9 @@ const onSearchClick = () => {
               class="rounded-full border-2 border-background"
             />
           </div>
-          <span class="text-xs text-muted-foreground">{{ story.username }}</span>
+          <span class="text-xs text-muted-foreground">{{
+            story.username
+          }}</span>
         </div>
       </div>
     </div>
@@ -150,7 +155,7 @@ const onSearchClick = () => {
                   'w-1.5 h-1.5 rounded-full',
                   index === currentSlides[postIndex]
                     ? 'bg-primary'
-                    : 'bg-muted'
+                    : 'bg-muted',
                 ]"
               />
             </div>
