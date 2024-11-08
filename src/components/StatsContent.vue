@@ -1,6 +1,8 @@
 <script setup>
 import { ref } from 'vue'
 import { BarChart, Search } from 'lucide-vue-next'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 const searchQuery = ref('')
@@ -16,15 +18,15 @@ const handleSearch = () => {
     </CardHeader>
     <CardContent>
       <div class="flex items-center space-x-2 mb-4">
-        <input
+        <Input
           v-model="searchQuery"
           type="search"
           placeholder="통계 항목 검색..."
           class="max-w-sm"
         />
-        <button @click="handleSearch" class="p-2 bg-transparent border-0">
+        <Button size="icon" variant="ghost" @click="handleSearch">
           <Search class="h-5 w-5" />
-        </button>
+        </Button>
       </div>
       <div class="h-64 bg-gray-200 rounded-md flex items-center justify-center">
         <BarChart class="h-16 w-16 text-gray-400" />

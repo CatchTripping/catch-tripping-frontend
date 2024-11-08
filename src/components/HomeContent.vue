@@ -1,18 +1,23 @@
 <script setup>
 import { ref } from 'vue'
 import { usePostsStore } from '@/stores/posts.js'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import {
-  Search,
+  Bookmark,
   ChevronLeft,
   Heart,
   MessageCircle,
-  Share2,
-  Bookmark,
   MoreHorizontal,
+  Search,
+  Share2,
 } from 'lucide-vue-next'
+import { useStoriesStore } from '@/stores/stories.js'
 
 // Pinia 스토어 가져오기
 const postsStore = usePostsStore()
+const storiesStore = useStoriesStore()
 
 // 상태 관리
 const currentSlides = ref(postsStore.getPosts.map(() => 0))
@@ -49,25 +54,24 @@ const onSearchClick = () => {
 <template>
   <div class="space-y-6">
     <h2 class="text-2xl font-bold">홈</h2>
-
     <!-- 검색바 -->
     <div class="flex items-center space-x-2 mb-4">
-      <input
-        v-model="searchQuery"
+      <Input
         type="search"
         placeholder="검색..."
         class="max-w-sm"
+        v-model="searchQuery"
       />
-      <button class="icon-button" @click="onSearchClick">
+      <Button size="icon" variant="ghost" @click="onSearchClick">
         <Search class="h-5 w-5" />
-      </button>
+      </Button>
     </div>
 
     <!-- Stories -->
     <div class="overflow-x-auto no-scrollbar">
       <div class="flex gap-4 p-4 min-w-max">
         <div
-          v-for="story in postsStore.getStories"
+          v-for="story in storiesStore.getStories"
           :key="story.id"
           class="flex flex-col items-center gap-1"
         >
@@ -89,12 +93,12 @@ const onSearchClick = () => {
 
     <!-- Posts -->
     <div class="space-y-6">
-      <div
+      <Card
         v-for="(post, postIndex) in postsStore.getPosts"
         :key="post.id"
         class="border-none shadow-none"
       >
-        <div class="flex flex-row items-center p-4">
+        <CardHeader class="flex flex-row items-center p-4">
           <div class="flex items-center gap-2">
             <img
               :src="post.avatar"
@@ -104,13 +108,18 @@ const onSearchClick = () => {
             <span class="font-semibold">{{ post.username }}</span>
             <span class="text-muted-foreground">• {{ post.timeAgo }}</span>
           </div>
-          <button class="ml-auto" @click="onMoreClick">
+          <Button
+            variant="ghost"
+            size="icon"
+            class="ml-auto"
+            @click="onMoreClick"
+          >
             <MoreHorizontal class="h-5 w-5" />
-          </button>
-        </div>
+          </Button>
+        </CardHeader>
 
         <!-- 이미지 슬라이드 -->
-        <div class="p-0">
+        <CardContent class="p-0">
           <div class="relative">
             <div class="overflow-hidden">
               <div
@@ -130,26 +139,30 @@ const onSearchClick = () => {
             </div>
 
             <!-- 슬라이드 버튼 -->
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               v-if="currentSlides[postIndex] > 0"
               class="absolute left-2 top-1/2 -translate-y-1/2 bg-background/80 rounded-full"
               @click="handleSlideChange(postIndex, 'prev')"
             >
               <ChevronLeft class="h-4 w-4" />
-            </button>
+            </Button>
 
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               v-if="currentSlides[postIndex] < post.images.length - 1"
               class="absolute right-2 top-1/2 -translate-y-1/2 bg-background/80 rounded-full"
               @click="handleSlideChange(postIndex, 'next')"
             >
               <ChevronLeft class="h-4 w-4 rotate-180" />
-            </button>
+            </Button>
 
             <!-- 슬라이드 인디케이터 -->
             <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1">
               <div
-                v-for="(_, index) in post.images"
+                v-for="(index) in post.images"
                 :key="index"
                 :class="[
                   'w-1.5 h-1.5 rounded-full',
@@ -165,19 +178,19 @@ const onSearchClick = () => {
           <div class="p-4 space-y-4">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-4">
-                <button class="icon-button">
+                <Button variant="ghost" size="icon">
                   <Heart class="h-6 w-6" />
-                </button>
-                <button class="icon-button">
+                </Button>
+                <Button variant="ghost" size="icon">
                   <MessageCircle class="h-6 w-6" />
-                </button>
-                <button class="icon-button">
+                </Button>
+                <Button variant="ghost" size="icon">
                   <Share2 class="h-6 w-6" />
-                </button>
+                </Button>
               </div>
-              <button class="icon-button">
+              <Button variant="ghost" size="icon">
                 <Bookmark class="h-6 w-6" />
-              </button>
+              </Button>
             </div>
             <div>
               <p class="font-semibold">좋아요 {{ post.likes }}개</p>
@@ -187,21 +200,10 @@ const onSearchClick = () => {
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   </div>
 </template>
 
-<style scoped>
-.icon-button {
-  background: transparent;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-}
-
-.icon-button:focus {
-  outline: none;
-}
-</style>
+<style scoped></style>

@@ -6,11 +6,11 @@ export const usePostsStore = defineStore('posts', {
       {
         id: 1,
         username: 'engtoontv',
-        avatar: '/placeholder.svg?height=40&width=40',
+        avatar: '@/assets/placeholder.svg?height=40&width=40',
         timeAgo: '1일',
         images: [
-          '/placeholder.svg?height=600&width=400',
-          '/placeholder.svg?height=600&width=400',
+          '@/assets/placeholder.svg?height=600&width=400',
+          '@/assets/placeholder.svg?height=600&width=400',
         ],
         likes: 535,
         caption: '👇 자세한 설명 👇',
@@ -19,9 +19,9 @@ export const usePostsStore = defineStore('posts', {
       {
         id: 2,
         username: 'traveler123',
-        avatar: '/placeholder.svg?height=40&width=40',
+        avatar: '@/assets/placeholder.svg?height=40&width=40',
         timeAgo: '3시간',
-        images: ['/placeholder.svg?height=600&width=400'],
+        images: ['@/assets/placeholder.svg?height=600&width=400'],
         likes: 1024,
         caption: '아름다운 석양 🌅',
         comments: [],
@@ -29,12 +29,12 @@ export const usePostsStore = defineStore('posts', {
       {
         id: 3,
         username: 'foodie_delight',
-        avatar: '/placeholder.svg?height=40&width=40',
+        avatar: '@/assets/placeholder.svg?height=40&width=40',
         timeAgo: '5시간',
         images: [
-          '/placeholder.svg?height=600&width=400',
-          '/placeholder.svg?height=600&width=400',
-          '/placeholder.svg?height=600&width=400',
+          '@/assets/placeholder.svg?height=600&width=400',
+          '@/assets/placeholder.svg?height=600&width=400',
+          '@/assets/placeholder.svg?height=600&width=400',
         ],
         likes: 789,
         caption: '오늘의 맛있는 점심 😋🍽️',
