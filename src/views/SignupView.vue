@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
-import api from '../axios.js';
-import router from "@/router/index.js";
+import api from '../axios.js'
+import router from '@/router/index.js'
 
 // Reactive state
 const email = ref('')
@@ -19,15 +19,15 @@ const register = async () => {
     await api.post('/users/register', {
       userName: username.value,
       userPassword: password.value,
-      userEmail: email.value
-    });
-    alert('Registration successful! You can now log in.');
-    router.push('/');
+      userEmail: email.value,
+    })
+    alert('Registration successful! You can now log in.')
+    router.push('/')
   } catch (error) {
-    console.error('Registration Failed: ', error);
-    alert('회원가입 실패. 다시 시도해 주세요.');
+    console.error('Registration Failed: ', error)
+    alert('회원가입 실패. 다시 시도해 주세요.')
   }
-};
+}
 </script>
 
 <template>
@@ -99,7 +99,10 @@ const register = async () => {
     >
       <p class="text-sm">
         계정이 있으신가요?
-        <router-link to="/login" class="text-blue-500 font-semibold hover:underline">
+        <router-link
+          to="/login"
+          class="text-blue-500 font-semibold hover:underline"
+        >
           로그인
         </router-link>
       </p>

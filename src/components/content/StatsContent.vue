@@ -1,9 +1,14 @@
 <script setup>
 import { ref } from 'vue'
 import { BarChart, Search } from 'lucide-vue-next'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input/index.js'
+import { Button } from '@/components/ui/button/index.js'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card/index.js'
 
 const searchQuery = ref('')
 

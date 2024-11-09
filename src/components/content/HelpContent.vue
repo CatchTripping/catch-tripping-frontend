@@ -1,6 +1,6 @@
 <script setup>
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button/index.js'
+import { Input } from '@/components/ui/input/index.js'
 </script>
 
 <template>
@@ -12,7 +12,9 @@ import { Input } from '@/components/ui/input'
         <Search class="h-5 w-5" />
       </Button>
     </div>
-    <p>MapDash 사용에 대한 도움이 필요하신가요? 아래 연락처로 문의해주세요:</p>
+    <p>
+      CatchTrip 사용에 대한 도움이 필요하신가요? 아래 연락처로 문의해주세요:
+    </p>
     <ul class="list-disc list-inside">
       <li>이메일: support@mapdash.com</li>
       <li>전화: 02-1234-5678</li>

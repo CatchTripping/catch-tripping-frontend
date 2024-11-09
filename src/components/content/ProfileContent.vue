@@ -1,6 +1,12 @@
 <script setup>
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button/index.js'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card/index.js'
+import { LogOut } from 'lucide-vue-next'
 </script>
 
 <template>
@@ -11,7 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
     <CardContent>
       <div class="flex items-center space-x-4 mb-4">
         <img
-          src="@/assets/placeholder.svg?height=100&width=100"
+          src="../../assets/placeholder.svg?height=100&width=100"
           alt="User"
           class="w-24 h-24 rounded-full"
         />

@@ -1,9 +1,9 @@
 <script setup>
 import { ref } from 'vue'
 import { usePostsStore } from '@/stores/posts.js'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Input } from '@/components/ui/input/index.js'
+import { Button } from '@/components/ui/button/index.js'
+import { Card, CardContent, CardHeader } from '@/components/ui/card/index.js'
 import {
   Bookmark,
   ChevronLeft,
@@ -162,7 +162,7 @@ const onSearchClick = () => {
             <!-- 슬라이드 인디케이터 -->
             <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1">
               <div
-                v-for="(index) in post.images"
+                v-for="index in post.images"
                 :key="index"
                 :class="[
                   'w-1.5 h-1.5 rounded-full',

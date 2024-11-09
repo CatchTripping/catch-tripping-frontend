@@ -1,7 +1,13 @@
 <script setup>
 import { ref } from 'vue'
 import { Search } from 'lucide-vue-next'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button/index.js'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card/index.js'
 
 const searchQuery = ref('')
 
@@ -30,9 +36,9 @@ const handleSearch = () => {
           placeholder="사용자 검색..."
           class="max-w-sm"
         />
-        <button @click="handleSearch" class="p-2 bg-transparent border-0">
+        <Button @click="handleSearch" class="p-2 bg-transparent border-0">
           <Search class="h-5 w-5" />
-        </button>
+        </Button>
       </div>
 
       <!-- 사용자 목록 출력 -->

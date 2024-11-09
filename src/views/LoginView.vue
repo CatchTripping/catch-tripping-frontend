@@ -3,9 +3,8 @@ import { ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import api from '../axios.js';
-import router from "@/router/index.js";
-
+import api from '../axios.js'
+import router from '@/router/index.js'
 
 // Reactive state
 const username = ref('')
@@ -13,24 +12,24 @@ const password = ref('')
 
 const login = async () => {
   try {
-    const params = new URLSearchParams();
-    params.append('username', username.value);
-    params.append('password', password.value);
+    const params = new URLSearchParams()
+    params.append('username', username.value)
+    params.append('password', password.value)
 
     const response = await api.post('/authenticate', params, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-    });
+    })
 
-    if (response.data.status === "success") {
-      router.push('/home');
+    if (response.data.status === 'success') {
+      router.push('/home')
     }
   } catch (error) {
-    console.error('Login Failed: ', error);
-    alert('로그인 실패. 아이디와 비밀번호를 확인하세요.');
+    console.error('Login Failed: ', error)
+    alert('로그인 실패. 아이디와 비밀번호를 확인하세요.')
   }
-};
+}
 </script>
 
 <template>
@@ -78,8 +77,12 @@ const login = async () => {
     >
       <p class="text-sm">
         계정이 없으신가요?
-        <router-link to="/signup" class="text-blue-500 font-semibold hover:underline">
-          >가입하기</router-link>
+        <router-link
+          to="/signup"
+          class="text-blue-500 font-semibold hover:underline"
+        >
+          >가입하기</router-link
+        >
       </p>
     </div>
   </div>

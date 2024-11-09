@@ -1,5 +1,5 @@
 <script setup>
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/button/index.js'
 import { Map, Home, BarChart } from 'lucide-vue-next'
 
 // 부모로부터 받는 props 정의
@@ -55,7 +55,7 @@ defineProps({
           @click="setActiveMenu('profile')"
         >
           <img
-            src="@/assets/placeholder.svg?height=32&width=32"
+            src="../../assets/placeholder.svg?height=32&width=32"
             alt="User"
             class="w-8 h-8 rounded-full"
           />
