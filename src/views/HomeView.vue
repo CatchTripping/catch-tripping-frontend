@@ -22,6 +22,11 @@ import BottomNavigation from '@/components/content/BottomNavigation.vue'
 import ProfileContent from '@/components/content/ProfileContent.vue'
 import NotificationsContent from '@/components/content/NotificationsContent.vue'
 import SettingsContent from '@/components/content/SettingsContent.vue'
+import { useUserStore } from '@/stores/user'
+
+// 유저 정보 및 로그아웃 함수 정의
+const userStore = useUserStore();
+const userInfo = userStore.userInfo; // userInfo 상태 가져오기
 
 // 상태 변수
 const isCollapsed = ref(false)
@@ -181,7 +186,7 @@ onBeforeUnmount(() => {
             alt="User"
             class="w-8 h-8 rounded-full"
           />
-          <span v-if="!isCollapsed" class="ml-2">사용자 이름</span>
+          <span v-if="!isCollapsed" class="ml-2">{{ userInfo?.userName || '사용자 이름'}}</span>
         </Button>
       </div>
       <Button

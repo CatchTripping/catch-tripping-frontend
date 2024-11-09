@@ -7,6 +7,18 @@ import {
   CardTitle,
 } from '@/components/ui/card/index.js'
 import { LogOut } from 'lucide-vue-next'
+import { useUserStore } from '@/stores/user'
+import router from '@/router/index.js'
+
+// 유저 정보 및 로그아웃 함수 정의
+const userStore = useUserStore();
+const userInfo = userStore.userInfo; // userInfo 상태 가져오기
+
+// 로그아웃 함수
+const logout = async () => {
+  await userStore.logout();
+  router.push('/login');
+};
 </script>
 
 <template>
@@ -22,14 +34,14 @@ import { LogOut } from 'lucide-vue-next'
           class="w-24 h-24 rounded-full"
         />
         <div>
-          <h2 class="text-2xl font-bold">사용자 이름</h2>
-          <p class="text-gray-500">user@example.com</p>
+          <h2 class="text-2xl font-bold">{{ userInfo?.userName || '사용자 이름'}}</h2>
+          <p class="text-gray-500">{{ userInfo?.userEmail || 'user@example.com'}}</p>
         </div>
       </div>
       <div class="space-y-4">
         <Button class="w-full">프로필 편집</Button>
         <Button variant="outline" class="w-full">설정</Button>
-        <Button variant="destructive" class="w-full">
+        <Button variant="destructive" class="w-full" @click="logout">
           <LogOut className="mr-2 h-4 w-4" />
           로그아웃
         </Button>
