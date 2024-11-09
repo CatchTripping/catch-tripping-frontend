@@ -24,6 +24,8 @@ import MapContent from '@/components/MapContent.vue'
 import StatsContent from '@/components/StatsContent.vue'
 import UsersContent from '@/components/UsersContent.vue'
 import HelpContent from '@/components/HelpContent.vue'
+import { useUserStore } from '@/stores/user';
+import router from '@/router/index.js'
 
 // 상태 변수
 const isCollapsed = ref(false)
@@ -31,6 +33,15 @@ const activeMenu = ref('home')
 
 // 드롭다운 상태 관리
 const isDropdownOpen = ref(false)
+
+// 유저
+const userStore = useUserStore()
+
+// 로그아웃 함수
+const logout = async () => {
+  await userStore.logout()
+  router.push('/login')
+}
 
 // 윈도우 크기 변경에 따라 사이드바 크기 조정
 const handleResize = () => {
@@ -139,7 +150,7 @@ onBeforeUnmount(() => {
             <DropdownMenuSeparator />
             <DropdownMenuItem>프로필</DropdownMenuItem>
             <DropdownMenuItem>설정</DropdownMenuItem>
-            <DropdownMenuItem>로그아웃</DropdownMenuItem>
+            <DropdownMenuItem @click="logout">로그아웃</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

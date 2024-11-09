@@ -1,36 +1,33 @@
 <script setup>
 import { ref } from 'vue'
+import { useUserStore } from '@/stores/user'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import api from '../axios.js';
-import router from "@/router/index.js";
-
+import router from "@/router/index.js"
 
 // Reactive state
 const username = ref('')
 const password = ref('')
 
+const userStore = useUserStore()
+
 const login = async () => {
   try {
-    const params = new URLSearchParams();
-    params.append('username', username.value);
-    params.append('password', password.value);
+    const loginSuccess = await userStore.login(username.value, password.value)
+    console.log('Login success:', loginSuccess)  // 디버깅용 로그
+    console.log('IsLoggedIn after login:', userStore.isLoggedIn)  // 디버깅용 로그
 
-    const response = await api.post('/authenticate', params, {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-    });
-
-    if (response.data.status === "success") {
-      router.push('/home');
+    if (userStore.isLoggedIn) {
+      await router.push('/home')
+    } else {
+      throw new Error('Login state not set properly')
     }
   } catch (error) {
-    console.error('Login Failed: ', error);
-    alert('로그인 실패. 아이디와 비밀번호를 확인하세요.');
+    console.error('Login Failed:', error)
+    alert('로그인 실패. 아이디와 비밀번호를 확인하세요.')
   }
-};
+}
 </script>
 
 <template>

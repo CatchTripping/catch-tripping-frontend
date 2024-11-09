@@ -1,35 +1,101 @@
 // stores/user.js (Pinia store)
 import { defineStore } from 'pinia'
-import Cookies from 'js-cookie' // 쿠키 관리를 위한 라이브러리
+import api from '../axios.js'
+import router from '@/router/index.js'
 
 export const useUserStore = defineStore('user', {
   state: () => ({
     userInfo: null, // 유저 정보
+    sessionCheckInterval: null, // 세션 체크 인터벌 ID
   }),
   actions: {
-    // 로그인 처리: 서버로 로그인 요청하고, 세션 ID를 쿠키에 저장
+    //세션 체크 시작 : 로그인 상태일 때 1분마다 세션 상태 확인
+    startSessionCheck() {
+      if (this.sessionCheckInterval) {
+        clearInterval(this.sessionCheckInterval)
+      }
+
+      this.sessionCheckInterval = setInterval(async () => {
+        if (this.isLoggedIn) {
+          try {
+            // 세션 확인을 위해 서버에 /users/userinfo 요청
+            const response = await api.get('/user/userinfo')
+            if (!response.data) {
+              this.handleSessionExpired()
+            }
+          } catch (error) {
+            // 인증 오류가 발생하면 세션 만료 처리
+            if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+              this.handleSessionExpired()
+            }
+          }
+        } else {
+          this.stopSessionCheck()
+        }
+      }, 60000) // 1분
+    },
+
+    // 세션 체크 중지
+    stopSessionCheck() {
+      if (this.sessionCheckInterval) {
+        clearInterval(this.sessionCheckInterval)
+        this.sessionCheckInterval = null
+      }
+    },
+
+    // 세션 만료 처리: 세션 체크 중지하고 로그인 페이지로 리다이렉트
+    handleSessionExpired() {
+      this.stopSessionCheck()
+      this.userInfo = null
+      if (router.currentRoute.value.path !== '/login') {
+        router.push('/login')
+      }
+    },
+
+    // 로그인 처리: 서버에 로그인 요청을 보내고 성공 시 세션 체크 시작
     async login(username, password) {
       try {
-        // 서버에 로그인 요청
-        const response = await fetch('/api/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password }),
+        const params = new URLSearchParams();
+        params.append('username', username);
+        params.append('password', password);
+
+        const response = await api.post('/authenticate', params, {
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         })
 
-        if (!response.ok) {
-          throw new Error('Login failed')
+        if (response.data.status === 'success') {
+          const userInfoSuccess = await this.getUserInfo()
+
+          if (!userInfoSuccess) {
+            this.userInfo = null
+            throw new Error('Failed to load user info')
+          }
+
+          this.startSessionCheck() // 로그인 성공 시 세션 체크 시작
+          return true
+        } else {
+          throw new Error('Login Failed')
         }
-
-        const data = await response.json()
-
-        // 로그인 성공 시 유저 정보와 세션을 쿠키에 저장
-        this.userInfo = data.user
-        Cookies.set('sessionId', data.sessionId, { expires: 7 }) // 세션 ID를 쿠키에 저장 (7일간 유효)
-
-        // 서버에서 받은 유저 정보를 추가 처리할 수 있음
       } catch (error) {
         console.error('Login error:', error)
+        this.userInfo = null
+        throw error
+      }
+    },
+
+    // 사용자 정보 가져오기
+    async getUserInfo() {
+      try {
+        const response = await api.get('/users/userinfo')
+
+        if (response.data) {
+          this.userInfo = response.data
+          return true
+        }
+        this.userInfo = null
+        return false
+      } catch (error) {
+        this.userInfo = null
         throw error
       }
     },
@@ -37,35 +103,32 @@ export const useUserStore = defineStore('user', {
     // 로그아웃 처리: 서버에서 세션 종료하고, 쿠키에서 세션 ID 제거
     async logout() {
       try {
-        // 서버에 로그아웃 요청
-        await fetch('/api/logout', { method: 'POST' })
-
-        // 로컬 스토어와 쿠키에서 세션 정보 제거
-        this.userInfo = null
-        Cookies.remove('sessionId') // 쿠키에서 세션 ID 삭제
+        await api.post('/logout', {})
+        this.userInfo = null;
+        this.stopSessionCheck()
       } catch (error) {
-        console.error('Logout error:', error)
+        console.error('Logout Failed:', error)
       }
     },
 
     // 로컬 스토리지나 쿠키에서 세션 정보 복원
-    loadSessionFromCookies() {
-      const sessionId = Cookies.get('sessionId')
-      if (sessionId) {
-        // 세션 ID가 쿠키에 있으면 서버에 해당 세션 정보를 요청하여 유저 정보 로드
-        fetch(`/api/session-info?sessionId=${sessionId}`)
-          .then(response => response.json())
-          .then(data => {
-            this.userInfo = data.user
-          })
-          .catch(error => {
-            console.error('Failed to load session:', error)
-          })
-      }
+    async loadSessionFromCookies() {
+        try {
+          const result = await this.getUserInfo()
+          if (result) {
+            this.startSessionCheck()
+          }
+          return result
+        } catch (error) {
+          this.userInfo = null
+          console.error('Failed to load user info:', error)
+          return false
+        }
     },
   },
   getters: {
     isLoggedIn(state) {
+      console.log('isLoggedIn check:', !!state.userInfo)
       return !!state.userInfo // 유저 정보가 있으면 로그인 상태
     },
   },
