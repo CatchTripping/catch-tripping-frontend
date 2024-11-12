@@ -7,6 +7,7 @@ import {
   Users,
   Settings,
   Map,
+  MapPinned,
   Home,
   BarChart,
   HelpCircle,
@@ -22,6 +23,7 @@ import BottomNavigation from '@/components/content/BottomNavigation.vue'
 import ProfileContent from '@/components/content/ProfileContent.vue'
 import NotificationsContent from '@/components/content/NotificationsContent.vue'
 import SettingsContent from '@/components/content/SettingsContent.vue'
+import RegionContent from '@/components/content/RegionContent.vue'
 import { useUserStore } from '@/stores/user'
 
 // 유저 정보 및 로그아웃 함수 정의
@@ -39,6 +41,8 @@ const renderContent = computed(() => {
       return HomeContent
     case 'map':
       return MapContent
+    case 'region':
+      return RegionContent
     case 'stats':
       return StatsContent
     case 'profile':
@@ -121,6 +125,16 @@ onBeforeUnmount(() => {
             >
               <Map class="h-4 w-4" />
               <span v-if="!isCollapsed" class="ml-2">지도</span>
+            </Button>
+          </li>
+          <li>
+            <Button
+              :variant="activeMenu === 'region' ? 'secondary' : 'ghost'"
+              class="w-full justify-start"
+              @click="setActiveMenu('region')"
+            >
+              <MapPinned class="h-4 w-4" />
+              <span v-if="!isCollapsed" class="ml-2">지역</span>
             </Button>
           </li>
           <li>
