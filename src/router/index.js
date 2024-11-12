@@ -20,15 +20,6 @@ const router = createRouter({
       name: 'login',
       component: LoginView,
       meta: { requiresGuest: true }, // 로그인하지 않은 사용자만 접근 가능
-      beforeEnter: (to, from, next) => {
-        const userStore = useUserStore()
-        // 로그인 상태일 경우 홈으로 리다이렉트
-        if (userStore.isLoggedIn) {
-          next('/home')
-        } else {
-          next()
-        }
-      }
     },
     {
       path: '/home',
@@ -47,34 +38,30 @@ const router = createRouter({
 
 // 네비게이션 가드 추가
 router.beforeEach(async (to, from, next) => {
-  const userStore = useUserStore()
+  const userStore = useUserStore();
 
-  try {
-    // 이미 로그인된 상태면 세션을 다시 확인하지 않음
-    if (!userStore.isLoggedIn) {
-      const hasSession = await userStore.loadSessionFromCookies()
-      console.log('Session check result:', hasSession)  // 세션 유효성 확인
-    }
-
-    // 인증이 필요하지만 로그인되지 않은 경우 로그인 페이지로 리다이렉트
-    if (to.meta.requiresAuth && !userStore.isLoggedIn) {
-      next('/login')
-      return
-    }
-
-    // 로그인하지 않은 사용자만 접근 가능한 페이지에 로그인된 사용자가 접근하는 경우
-    // 메인 페이지로 리다이렉트
-    if (to.meta.requiresGuest && userStore.isLoggedIn) {
-      next('/home')
-      return
-    }
-
-    // 모든 조건을 통과하면 원래 목적지로 이동
-    next()
-  } catch (error) {
-    console.error('Navigation guard error:', error)
-    next('/login')
+  // 초기 로그인 상태 복구
+  if (!userStore.isLoggedIn) {
+    await userStore.loadSessionFromCookies();
   }
-})
+
+  // 로그인 상태에서 /login이나 /로 접근할 때 /home으로 리다이렉트
+  if (userStore.isLoggedIn && (to.path === "/login" || to.path === "/")) {
+    return next("/home");
+  }
+
+  // 인증이 필요한 페이지에 접근하는 경우 로그인 여부 확인
+  if (to.meta.requiresAuth && !userStore.isLoggedIn) {
+    return next("/login");
+  }
+
+  // 비회원 전용 페이지에 로그인된 사용자가 접근하려는 경우 홈으로 리다이렉트
+  if (to.meta.requiresGuest && userStore.isLoggedIn) {
+    return next("/home");
+  }
+
+  next(); // 다른 모든 경우에 원래 목적지로 이동
+});
+
 
 export default router

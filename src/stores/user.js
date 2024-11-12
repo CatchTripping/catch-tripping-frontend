@@ -6,58 +6,56 @@ import router from '@/router/index.js'
 export const useUserStore = defineStore('user', {
   state: () => ({
     userInfo: null, // 유저 정보
-    sessionCheckInterval: null, // 세션 체크 인터벌 ID
   }),
   actions: {
-    //세션 체크 시작 : 로그인 상태일 때 1분마다 세션 상태 확인
-    startSessionCheck() {
-      if (this.sessionCheckInterval) {
-        clearInterval(this.sessionCheckInterval)
+    // 회원가입
+    async registerUser({ userName, userPassword, userEmail }) {
+      try {
+        await api.post('/users/register', {
+          userName,
+          userPassword,
+          userEmail
+        })
+        alert('회원가입 성공');
+        router.push('/login');
+      } catch (error) {
+        console.error('Registration Failed: ', error);
+        alert('회원가입 실패. 다시 시도해 주세요.');
       }
-
-      this.sessionCheckInterval = setInterval(async () => {
-        if (this.isLoggedIn) {
-          try {
-            // 세션 확인을 위해 서버에 /users/userinfo 요청
-            const response = await api.get('/user/userinfo')
-            if (!response.data) {
-              this.handleSessionExpired()
-            }
-          } catch (error) {
-            // 인증 오류가 발생하면 세션 만료 처리
-            if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-              this.handleSessionExpired()
-            }
-          }
-        } else {
-          this.stopSessionCheck()
-        }
-      }, 60000) // 1분
     },
-
-    // 세션 체크 중지
-    stopSessionCheck() {
-      if (this.sessionCheckInterval) {
-        clearInterval(this.sessionCheckInterval)
-        this.sessionCheckInterval = null
+    // 아이디 중복 체크
+    async checkUsername(username) {
+      try {
+        const response = await api.get('users/check-username', {
+          params: { userName: username}
+        })
+        return response.data // true : 사용 가능, false : 중복
+      } catch (error) {
+        console.error('Username check error:', error)
+        return false
       }
     },
 
-    // 세션 만료 처리: 세션 체크 중지하고 로그인 페이지로 리다이렉트
-    handleSessionExpired() {
-      this.stopSessionCheck()
-      this.userInfo = null
-      if (router.currentRoute.value.path !== '/login') {
-        router.push('/login')
+    // 이메일 중복 체크
+    async checkEmail(userEmail) {
+      try {
+        const response = await api.get('users/check-email', {
+          params: { userEmail }
+        })
+        return response.data
+      } catch (error) {
+        console.error('Email check error:', error)
+        return false
       }
     },
 
     // 로그인 처리: 서버에 로그인 요청을 보내고 성공 시 세션 체크 시작
-    async login(username, password) {
+    async login(username, password, rememberMe) {
       try {
         const params = new URLSearchParams();
-        params.append('username', username);
-        params.append('password', password);
+        params.append('username', username)
+        params.append('password', password)
+        params.append('remember-me', rememberMe ? 'true' : 'false')
 
         const response = await api.post('/authenticate', params, {
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -70,8 +68,6 @@ export const useUserStore = defineStore('user', {
             this.userInfo = null
             throw new Error('Failed to load user info')
           }
-
-          this.startSessionCheck() // 로그인 성공 시 세션 체크 시작
           return true
         } else {
           throw new Error('Login Failed')
@@ -105,7 +101,6 @@ export const useUserStore = defineStore('user', {
       try {
         await api.post('/logout', {})
         this.userInfo = null;
-        this.stopSessionCheck()
       } catch (error) {
         console.error('Logout Failed:', error)
       }
@@ -113,17 +108,20 @@ export const useUserStore = defineStore('user', {
 
     // 로컬 스토리지나 쿠키에서 세션 정보 복원
     async loadSessionFromCookies() {
-        try {
-          const result = await this.getUserInfo()
-          if (result) {
-            this.startSessionCheck()
-          }
-          return result
-        } catch (error) {
-          this.userInfo = null
-          console.error('Failed to load user info:', error)
-          return false
+      try {
+        const response = await api.get('/users/check')
+        if (response.data) {
+          await this.getUserInfo()
+          return true
         }
+        return false
+      } catch (error) {
+        if (error.response && error.response.status === 404) {
+          console.warn('No active session found. Redirecting to login.')
+        }
+        this.userInfo = null
+        return false
+      }
     },
   },
   getters: {

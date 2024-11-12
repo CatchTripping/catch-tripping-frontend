@@ -9,16 +9,18 @@ import router from "@/router/index.js"
 // Reactive state
 const username = ref('')
 const password = ref('')
+const rememberMe = ref(false)
 
 const userStore = useUserStore()
 
 const login = async () => {
   try {
-    const loginSuccess = await userStore.login(username.value, password.value)
+    const loginSuccess = await userStore.login(username.value, password.value, rememberMe.value)
     console.log('Login success:', loginSuccess)  // 디버깅용 로그
     console.log('IsLoggedIn after login:', userStore.isLoggedIn)  // 디버깅용 로그
 
-    if (userStore.isLoggedIn) {
+    // if (userStore.isLoggedIn) {
+    if (loginSuccess) {
       await router.push('/home')
     } else {
       throw new Error('Login state not set properly')
@@ -59,6 +61,10 @@ const login = async () => {
             required
             type="password"
           />
+        </div>
+        <div class="flex items-center">
+          <input type="checkbox" id="rememberMe" v-model="rememberMe" />
+          <label for="rememberMe" class="ml-2">로그인 상태 유지</label>
         </div>
         <Button class="w-full bg-blue-500 hover:bg-blue-600" type="submit">
           로그인

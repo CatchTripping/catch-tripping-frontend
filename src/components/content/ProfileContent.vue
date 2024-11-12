@@ -14,6 +14,7 @@ import router from '@/router/index.js'
 const userStore = useUserStore();
 const userInfo = userStore.userInfo; // userInfo 상태 가져오기
 
+console.log(userInfo)
 // 로그아웃 함수
 const logout = async () => {
   await userStore.logout();
