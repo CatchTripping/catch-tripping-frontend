@@ -29,7 +29,7 @@ export const useUserStore = defineStore('user', {
         const response = await api.get('users/check-username', {
           params: { userName: username}
         })
-        return response.data // true : 사용 가능, false : 중복
+        return response.data.isAvailable // true : 사용 가능, false : 중복
       } catch (error) {
         console.error('Username check error:', error)
         return false
@@ -42,7 +42,7 @@ export const useUserStore = defineStore('user', {
         const response = await api.get('users/check-email', {
           params: { userEmail }
         })
-        return response.data
+        return response.data.isAvailable
       } catch (error) {
         console.error('Email check error:', error)
         return false
@@ -110,7 +110,7 @@ export const useUserStore = defineStore('user', {
     async loadSessionFromCookies() {
       try {
         const response = await api.get('/users/check')
-        if (response.data) {
+        if (response.data.isAuthenticated) {
           await this.getUserInfo()
           return true
         }
