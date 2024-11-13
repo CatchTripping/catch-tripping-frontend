@@ -27,8 +27,8 @@ import RegionContent from '@/components/content/RegionContent.vue'
 import { useUserStore } from '@/stores/user'
 
 // 유저 정보 및 로그아웃 함수 정의
-const userStore = useUserStore();
-const userInfo = userStore.userInfo; // userInfo 상태 가져오기
+const userStore = useUserStore()
+const userInfo = userStore.userInfo // userInfo 상태 가져오기
 
 // 상태 변수
 const isCollapsed = ref(false)
@@ -92,7 +92,7 @@ onBeforeUnmount(() => {
       v-if="!isMobile"
       :class="[
         'bg-white min-h-screen flex flex-col transition-all duration-300',
-        isCollapsed ? 'w-16' : 'w-64',
+        isCollapsed ? 'w-16' : 'w-56',
         'relative',
       ]"
     >
@@ -200,7 +200,9 @@ onBeforeUnmount(() => {
             alt="User"
             class="w-8 h-8 rounded-full"
           />
-          <span v-if="!isCollapsed" class="ml-2">{{ userInfo?.userName || '사용자 이름'}}</span>
+          <span v-if="!isCollapsed" class="ml-2">{{
+            userInfo?.userName || '사용자 이름'
+          }}</span>
         </Button>
       </div>
       <Button
@@ -257,7 +259,9 @@ onBeforeUnmount(() => {
           isMobile ? 'pb-20' : '',
         ]"
       >
-        <component :is="renderContent" />
+        <div class="flex justify-center items-center w-full">
+          <component id="main-component" :is="renderContent" />
+        </div>
       </main>
 
       <!-- Bottom Navigation for mobile -->
@@ -272,4 +276,15 @@ onBeforeUnmount(() => {
 
 <style scoped>
 /* 스타일을 여기에 추가할 수 있습니다 */
+@media (max-width: 900px) {
+  #main-component {
+    width: 500px; /* 모바일 화면에서는 90%로 설정 */
+  }
+}
+
+@media (min-width: 900px) {
+  #main-component {
+    width: 800px; /* 769px 이상에서는 고정 width */
+  }
+}
 </style>
