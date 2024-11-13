@@ -14,20 +14,20 @@ export const useUserStore = defineStore('user', {
         await api.post('/users/register', {
           userName,
           userPassword,
-          userEmail
+          userEmail,
         })
-        alert('회원가입 성공');
-        router.push('/login');
+        alert('회원가입 성공')
+        router.push('/login')
       } catch (error) {
-        console.error('Registration Failed: ', error);
-        alert('회원가입 실패. 다시 시도해 주세요.');
+        console.error('Registration Failed: ', error)
+        alert('회원가입 실패. 다시 시도해 주세요.')
       }
     },
     // 아이디 중복 체크
     async checkUsername(username) {
       try {
         const response = await api.get('users/check-username', {
-          params: { userName: username}
+          params: { userName: username },
         })
         return response.data.isAvailable // true : 사용 가능, false : 중복
       } catch (error) {
@@ -40,7 +40,7 @@ export const useUserStore = defineStore('user', {
     async checkEmail(userEmail) {
       try {
         const response = await api.get('users/check-email', {
-          params: { userEmail }
+          params: { userEmail },
         })
         return response.data.isAvailable
       } catch (error) {
@@ -52,7 +52,7 @@ export const useUserStore = defineStore('user', {
     // 로그인 처리: 서버에 로그인 요청을 보내고 성공 시 세션 체크 시작
     async login(username, password, rememberMe) {
       try {
-        const params = new URLSearchParams();
+        const params = new URLSearchParams()
         params.append('username', username)
         params.append('password', password)
         params.append('remember-me', rememberMe ? 'true' : 'false')
@@ -100,7 +100,7 @@ export const useUserStore = defineStore('user', {
     async logout() {
       try {
         await api.post('/logout', {})
-        this.userInfo = null;
+        this.userInfo = null
       } catch (error) {
         console.error('Logout Failed:', error)
       }

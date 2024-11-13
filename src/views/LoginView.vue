@@ -4,7 +4,7 @@ import { useUserStore } from '@/stores/user'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import router from "@/router/index.js"
+import router from '@/router/index.js'
 
 // Reactive state
 const username = ref('')
@@ -15,9 +15,13 @@ const userStore = useUserStore()
 
 const login = async () => {
   try {
-    const loginSuccess = await userStore.login(username.value, password.value, rememberMe.value)
-    console.log('Login success:', loginSuccess)  // 디버깅용 로그
-    console.log('IsLoggedIn after login:', userStore.isLoggedIn)  // 디버깅용 로그
+    const loginSuccess = await userStore.login(
+      username.value,
+      password.value,
+      rememberMe.value,
+    )
+    console.log('Login success:', loginSuccess) // 디버깅용 로그
+    console.log('IsLoggedIn after login:', userStore.isLoggedIn) // 디버깅용 로그
 
     // if (userStore.isLoggedIn) {
     if (loginSuccess) {

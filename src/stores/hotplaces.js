@@ -23,25 +23,27 @@ export const useHotPlacesStore = defineStore('hotplaces', () => {
     }
   })
 
-  const handleClick = (event) => {
+  const handleClick = event => {
     if (loading.value) return // loading이 true일 경우 지역 변경 하지 않음
     loading.value = true
 
     // 클릭된 요소의 ID 값을 가져옵니다
-    const sigunguCode = parseInt(event.target.dataset.sigunguCode, 10);
+    const sigunguCode = parseInt(event.target.dataset.sigunguCode, 10)
 
     // 클릭된 요소에 st2 클래스 토글
-    const toggled = event.target.classList.toggle('st2');
+    const toggled = event.target.classList.toggle('st2')
 
     // sigunguCodes 배열에 sigunguCode 추가하거나 제거
     if (toggled) {
       // 추가 (새로운 배열로 할당)
       if (!sigunguCodes.value.includes(sigunguCode)) {
-        sigunguCodes.value = [...sigunguCodes.value, sigunguCode];
+        sigunguCodes.value = [...sigunguCodes.value, sigunguCode]
       }
     } else {
       // 제거 (새로운 배열로 할당)
-      sigunguCodes.value = sigunguCodes.value.filter(code => code !== sigunguCode);
+      sigunguCodes.value = sigunguCodes.value.filter(
+        code => code !== sigunguCode,
+      )
     }
   }
 

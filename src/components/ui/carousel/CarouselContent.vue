@@ -1,16 +1,16 @@
 <script setup>
-import { cn } from '@/lib/utils';
-import { useCarousel } from './useCarousel';
+import { cn } from '@/lib/utils'
+import { useCarousel } from './useCarousel'
 
 defineOptions({
   inheritAttrs: false,
-});
+})
 
 const props = defineProps({
   class: { type: null, required: false },
-});
+})
 
-const { carouselRef, orientation } = useCarousel();
+const { carouselRef, orientation } = useCarousel()
 </script>
 
 <template>
