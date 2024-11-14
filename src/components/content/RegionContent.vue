@@ -94,6 +94,27 @@ watch(
 
 <template>
   <div class="space-y-6">
+    <!-- Category Title -->
+    <Select
+      v-model="hotPlaces.hotPlaceType"
+      :disabled="hotPlaces.loading"
+      @update:modelValue="hotPlaces.loading = true"
+    >
+      <SelectTrigger class="w-[120px]">
+        <SelectValue :placeholder="hotPlaces.hotPlaceType" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          <SelectItem
+            :key="category.id"
+            v-for="category in categories"
+            :value="category.id"
+          >
+            {{ category.name }}
+          </SelectItem>
+        </SelectGroup>
+      </SelectContent>
+    </Select>
     <!-- Region Selector -->
     <Card>
       <Carousel
@@ -101,13 +122,13 @@ watch(
           align: 'start',
           loop: true,
         }"
-        class="w-full max-w-sm mx-auto"
+        class="w-full max-w-[calc(100%-120px)] mx-auto"
       >
         <CarouselContent>
           <CarouselItem
             v-for="area in areas"
             :key="area.id"
-            class="basis-1/5 self-center"
+            class="basis-1/5 md:basis-1/6 lg:basis-1/12 self-center"
           >
             <div class="p-1">
               <Button
@@ -152,41 +173,18 @@ watch(
 
     <!-- Map and Location List-->
     <div class="grid lg:grid-cols-[2fr_1fr] grid-cols-1fr gap-2">
-      <div>
-        <!-- Category Title -->
-        <Select
-          v-model="hotPlaces.hotPlaceType"
-          :disabled="hotPlaces.loading"
-          @update:modelValue="hotPlaces.loading = true"
-        >
-          <SelectTrigger class="w-[120px]">
-            <SelectValue :placeholder="hotPlaces.hotPlaceType" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectItem
-                :key="category.id"
-                v-for="category in categories"
-                :value="category.id"
-              >
-                {{ category.name }}
-              </SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-        <!-- Map -->
-        <Card class="w-full h-min mt-2">
-          <component
-            :is="hotPlaces.renderMap"
-            :class="
-              cn(
-                'relative inset-0 w-full h-full transition-opacity duration-500',
-                hotPlaces.loading ? 'opacity-30' : 'opacity-100',
-              )
-            "
-          />
-        </Card>
-      </div>
+      <!-- Map -->
+      <Card class="w-full h-min">
+        <component
+          :is="hotPlaces.renderMap"
+          :class="
+            cn(
+              'relative inset-0 w-full h-full transition-opacity duration-500',
+              hotPlaces.loading ? 'opacity-30' : 'opacity-100',
+            )
+          "
+        />
+      </Card>
 
       <!-- Location List -->
       <ScrollArea class="h-[calc(100vh-300px)]">
@@ -226,16 +224,21 @@ watch(
                   </div>
                   <div class="w-2/3 p-4 lg:p-2 space-y-2">
                     <div class="flex justify-between items-start">
-                      <h3 class="font-semibold text-lg">{{ place.title }}</h3>
+                      <h3
+                        class="font-semibold text-lg overflow-ellipsis overflow-hidden whitespace-nowrap"
+                      >
+                        {{ place.title }}
+                      </h3>
                     </div>
-                    <p class="text-sm text-gray-500">{{ place.region }}</p>
                     <div class="flex flex-wrap gap-2">
                       <span
-                        v-for="tag in place.tags"
-                        :key="tag"
                         class="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-full"
                       >
-                        #{{ tag }}
+                        {{
+                          place.categoryCodesList[
+                            place.categoryCodesList.length - 1
+                          ].categoryName
+                        }}
                       </span>
                     </div>
                   </div>
