@@ -1,6 +1,6 @@
 <script setup>
 import { Button } from '@/components/ui/button/index.js'
-import { Map, Home, BarChart } from 'lucide-vue-next'
+import { Map, Home, MapPinned } from 'lucide-vue-next'
 
 // 부모로부터 받는 props 정의
 defineProps({
@@ -40,12 +40,12 @@ defineProps({
       </li>
       <li>
         <Button
-          :variant="activeMenu === 'stats' ? 'secondary' : 'ghost'"
+          :variant="activeMenu === 'region' ? 'secondary' : 'ghost'"
           class="flex flex-col items-center"
-          @click="setActiveMenu('stats')"
+          @click="setActiveMenu('region')"
         >
-          <BarChart class="h-5 w-5" />
-          <span class="text-xs mt-1">통계</span>
+          <MapPinned class="h-5 w-5" />
+          <span class="text-xs mt-1">지역</span>
         </Button>
       </li>
       <li>
@@ -55,9 +55,9 @@ defineProps({
           @click="setActiveMenu('profile')"
         >
           <img
-            src="../../assets/placeholder.svg?height=32&width=32"
+            src="../../assets/no_picture.png"
             alt="User"
-            class="w-8 h-8 rounded-full"
+            class="w-10 h-10 rounded-full"
           />
         </Button>
       </li>

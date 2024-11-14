@@ -11,15 +11,15 @@ import { useUserStore } from '@/stores/user'
 import router from '@/router/index.js'
 
 // 유저 정보 및 로그아웃 함수 정의
-const userStore = useUserStore();
-const userInfo = userStore.userInfo; // userInfo 상태 가져오기
+const userStore = useUserStore()
+const userInfo = userStore.userInfo // userInfo 상태 가져오기
 
 console.log(userInfo)
 // 로그아웃 함수
 const logout = async () => {
-  await userStore.logout();
-  router.push('/login');
-};
+  await userStore.logout()
+  router.push('/login')
+}
 </script>
 
 <template>
@@ -35,8 +35,12 @@ const logout = async () => {
           class="w-24 h-24 rounded-full"
         />
         <div>
-          <h2 class="text-2xl font-bold">{{ userInfo?.userName || '사용자 이름'}}</h2>
-          <p class="text-gray-500">{{ userInfo?.userEmail || 'user@example.com'}}</p>
+          <h2 class="text-2xl font-bold">
+            {{ userInfo?.userName || '사용자 이름' }}
+          </h2>
+          <p class="text-gray-500">
+            {{ userInfo?.userEmail || 'user@example.com' }}
+          </p>
         </div>
       </div>
       <div class="space-y-4">

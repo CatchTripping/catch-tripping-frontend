@@ -3,12 +3,10 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import {
-  Bell,
-  Users,
   Settings,
   Map,
+  MapPinned,
   Home,
-  BarChart,
   HelpCircle,
   ChevronLeft,
 } from 'lucide-vue-next'
@@ -22,11 +20,12 @@ import BottomNavigation from '@/components/content/BottomNavigation.vue'
 import ProfileContent from '@/components/content/ProfileContent.vue'
 import NotificationsContent from '@/components/content/NotificationsContent.vue'
 import SettingsContent from '@/components/content/SettingsContent.vue'
+import RegionContent from '@/components/content/RegionContent.vue'
 import { useUserStore } from '@/stores/user'
 
 // 유저 정보 및 로그아웃 함수 정의
-const userStore = useUserStore();
-const userInfo = userStore.userInfo; // userInfo 상태 가져오기
+const userStore = useUserStore()
+const userInfo = userStore.userInfo // userInfo 상태 가져오기
 
 // 상태 변수
 const isCollapsed = ref(false)
@@ -39,6 +38,8 @@ const renderContent = computed(() => {
       return HomeContent
     case 'map':
       return MapContent
+    case 'region':
+      return RegionContent
     case 'stats':
       return StatsContent
     case 'profile':
@@ -88,7 +89,7 @@ onBeforeUnmount(() => {
       v-if="!isMobile"
       :class="[
         'bg-white min-h-screen flex flex-col transition-all duration-300',
-        isCollapsed ? 'w-16' : 'w-64',
+        isCollapsed ? 'w-16' : 'w-56',
         'relative',
       ]"
     >
@@ -125,34 +126,44 @@ onBeforeUnmount(() => {
           </li>
           <li>
             <Button
-              :variant="activeMenu === 'stats' ? 'secondary' : 'ghost'"
+              :variant="activeMenu === 'region' ? 'secondary' : 'ghost'"
               class="w-full justify-start"
-              @click="setActiveMenu('stats')"
+              @click="setActiveMenu('region')"
             >
-              <BarChart class="h-4 w-4" />
-              <span v-if="!isCollapsed" class="ml-2">통계</span>
+              <MapPinned class="h-4 w-4" />
+              <span v-if="!isCollapsed" class="ml-2">지역</span>
             </Button>
           </li>
-          <li>
-            <Button
-              :variant="activeMenu === 'stats' ? 'secondary' : 'ghost'"
-              class="w-full justify-start"
-              @click="setActiveMenu('users')"
-            >
-              <Users class="h-4 w-4" />
-              <span v-if="!isCollapsed" class="ml-2">사용자 목록</span>
-            </Button>
-          </li>
-          <li>
-            <Button
-              :variant="activeMenu === 'stats' ? 'secondary' : 'ghost'"
-              class="w-full justify-start"
-              @click="setActiveMenu('notifications')"
-            >
-              <Bell class="h-4 w-4" />
-              <span v-if="!isCollapsed" class="ml-2">알림</span>
-            </Button>
-          </li>
+          <!--          <li>-->
+          <!--            <Button-->
+          <!--              :variant="activeMenu === 'stats' ? 'secondary' : 'ghost'"-->
+          <!--              class="w-full justify-start"-->
+          <!--              @click="setActiveMenu('stats')"-->
+          <!--            >-->
+          <!--              <BarChart class="h-4 w-4" />-->
+          <!--              <span v-if="!isCollapsed" class="ml-2">통계</span>-->
+          <!--            </Button>-->
+          <!--          </li>-->
+          <!--          <li>-->
+          <!--            <Button-->
+          <!--              :variant="activeMenu === 'stats' ? 'secondary' : 'ghost'"-->
+          <!--              class="w-full justify-start"-->
+          <!--              @click="setActiveMenu('users')"-->
+          <!--            >-->
+          <!--              <Users class="h-4 w-4" />-->
+          <!--              <span v-if="!isCollapsed" class="ml-2">사용자 목록</span>-->
+          <!--            </Button>-->
+          <!--          </li>-->
+          <!--          <li>-->
+          <!--            <Button-->
+          <!--              :variant="activeMenu === 'stats' ? 'secondary' : 'ghost'"-->
+          <!--              class="w-full justify-start"-->
+          <!--              @click="setActiveMenu('notifications')"-->
+          <!--            >-->
+          <!--              <Bell class="h-4 w-4" />-->
+          <!--              <span v-if="!isCollapsed" class="ml-2">알림</span>-->
+          <!--            </Button>-->
+          <!--          </li>-->
           <li>
             <Button
               :variant="activeMenu === 'stats' ? 'secondary' : 'ghost'"
@@ -182,11 +193,13 @@ onBeforeUnmount(() => {
           @click="setActiveMenu('profile')"
         >
           <img
-            src="@/assets/placeholder.svg?height=32&width=32"
+            src="@/assets/no_picture.png"
             alt="User"
-            class="w-8 h-8 rounded-full"
+            class="w-10 h-10 rounded-full"
           />
-          <span v-if="!isCollapsed" class="ml-2">{{ userInfo?.userName || '사용자 이름'}}</span>
+          <span v-if="!isCollapsed" class="ml-2">{{
+            userInfo?.userName || '사용자 이름'
+          }}</span>
         </Button>
       </div>
       <Button
@@ -213,16 +226,16 @@ onBeforeUnmount(() => {
       >
         <h1 class="text-xl font-semibold">CatchTrip</h1>
         <div class="flex items-center space-x-2">
-          <Button size="icon" variant="ghost" @click="setActiveMenu('users')">
-            <Users class="h-5 w-5" />
-          </Button>
-          <Button
-            size="icon"
-            variant="ghost"
-            @click="setActiveMenu('notifications')"
-          >
-            <Bell class="h-5 w-5" />
-          </Button>
+          <!--          <Button size="icon" variant="ghost" @click="setActiveMenu('users')">-->
+          <!--            <Users class="h-5 w-5" />-->
+          <!--          </Button>-->
+          <!--          <Button-->
+          <!--            size="icon"-->
+          <!--            variant="ghost"-->
+          <!--            @click="setActiveMenu('notifications')"-->
+          <!--          >-->
+          <!--            <Bell class="h-5 w-5" />-->
+          <!--          </Button>-->
           <Button
             size="icon"
             variant="ghost"
@@ -243,7 +256,9 @@ onBeforeUnmount(() => {
           isMobile ? 'pb-20' : '',
         ]"
       >
-        <component :is="renderContent" />
+        <div class="flex justify-center items-center w-full">
+          <component id="main-component" :is="renderContent" />
+        </div>
       </main>
 
       <!-- Bottom Navigation for mobile -->
@@ -258,4 +273,15 @@ onBeforeUnmount(() => {
 
 <style scoped>
 /* 스타일을 여기에 추가할 수 있습니다 */
+@media (max-width: 900px) {
+  #main-component {
+    width: 500px; /* 모바일 화면에서는 90%로 설정 */
+  }
+}
+
+@media (min-width: 900px) {
+  #main-component {
+    width: 800px; /* 769px 이상에서는 고정 width */
+  }
+}
 </style>
