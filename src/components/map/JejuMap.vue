@@ -1,4 +1,8 @@
-<script setup></script>
+<script setup>
+import { useHotPlacesStore } from '@/stores/hotplaces.js'
+
+const hotPlaces = useHotPlacesStore()
+</script>
 
 <template>
   <svg
@@ -6,7 +10,6 @@
     xmlns="http://www.w3.org/2000/svg"
     width="1000"
     height="820"
-    version="1.1"
     viewBox="0 0 1000 820"
   >
     <g>
@@ -14,8 +17,9 @@
         <g
           class="c-click"
           id="jejuArea01"
-          sigungu-code="3"
-          sigungu-name="서귀포시"
+          @click="hotPlaces.handleClick"
+          data-sigungu-code="3"
+          data-sigungu-name="서귀포시"
         >
           <path
             class="cls-3"
@@ -33,8 +37,9 @@
         <g
           class="c-click"
           id="jejuArea02"
-          sigungu-code="4"
-          sigungu-name="제주시"
+          @click="hotPlaces.handleClick"
+          data-sigungu-code="4"
+          data-sigungu-name="제주시"
         >
           <path
             class="cls-3"
@@ -143,4 +148,6 @@
   </svg>
 </template>
 
-<style scoped></style>
+<style scoped>
+@import '@/assets/map/map.css';
+</style>

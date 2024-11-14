@@ -75,6 +75,13 @@ export const useHotPlacesStore = defineStore('hotplaces', {
   },
 
   actions: {
+    setAreaCode(areaCode) {
+      if (this.regionCode !== areaCode) {
+        this.sigunguCodes = []
+        this.regionCode = areaCode
+      }
+    },
+
     // handleClick: 지역 선택 처리
     handleClick(event) {
       if (this.loading) return // loading 이 true 일 경우 지역 변경 하지 않음
@@ -82,13 +89,16 @@ export const useHotPlacesStore = defineStore('hotplaces', {
 
       // 클릭된 요소의 ID 값을 가져옵  니다
       let dataCode = event.target.dataset.sigunguCode
+      let toggled
       if (dataCode === undefined) {
-        dataCode = event.target.parentElement.dataset.sigunguCode;
+        dataCode = event.target.parentElement.dataset.sigunguCode
+        // 클릭된 요소에 st2 클래스 토글
+        toggled = event.target.parentElement.classList.toggle('st2')
+      } else {
+        // 클릭된 요소에 st2 클래스 토글
+        toggled = event.target.classList.toggle('st2')
       }
       const sigunguCode = parseInt(dataCode, 10)
-
-      // 클릭된 요소에 st2 클래스 토글
-      const toggled = event.target.classList.toggle('st2')
 
       // sigunguCodes 배열에 sigunguCode 추가하거나 제거
       if (toggled) {
@@ -128,20 +138,6 @@ export const useHotPlacesStore = defineStore('hotplaces', {
     debouncedFetchPlaces: debounce(function () {
       this.fetchPlaces()
     }, 500),
-  },
-
-  // watch: 상태 값 변경 시 자동 호출되는 watch
-  watch: {
-    hotPlaceType() {
-      this.debouncedFetchPlaces()
-    },
-    regionCode() {
-      this.sigunguCodes = []
-      this.debouncedFetchPlaces()
-    },
-    sigunguCodes() {
-      this.debouncedFetchPlaces()
-    },
   },
 
   // 초기화 및 상태 변경 시 디바운싱된 fetchPlaces 호출

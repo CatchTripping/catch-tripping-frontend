@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, watch } from 'vue'
 import { useHotPlacesStore } from '@/stores/hotplaces'
 
 import { Button } from '@/components/ui/button'
@@ -69,6 +69,27 @@ const getPlaceImageSrc = image => {
     return new URL(image)
   }
 }
+
+watch(
+  () => hotPlaces.hotPlaceType,
+  () => {
+    hotPlaces.debouncedFetchPlaces()
+  },
+)
+
+watch(
+  () => hotPlaces.regionCode,
+  () => {
+    hotPlaces.debouncedFetchPlaces()
+  },
+)
+
+watch(
+  () => hotPlaces.sigunguCodes,
+  () => {
+    hotPlaces.debouncedFetchPlaces()
+  },
+)
 </script>
 
 <template>
@@ -92,7 +113,7 @@ const getPlaceImageSrc = image => {
               <Button
                 variant="ghost"
                 class="w-full flex flex-col items-center gap-2 h-auto py-2"
-                @click="hotPlaces.regionCode = area.id"
+                @click="hotPlaces.setAreaCode(area.id)"
               >
                 <div
                   :class="
