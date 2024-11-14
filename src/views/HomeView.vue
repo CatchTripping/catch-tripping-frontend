@@ -3,13 +3,10 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import {
-  Bell,
-  Users,
   Settings,
   Map,
   MapPinned,
   Home,
-  BarChart,
   HelpCircle,
   ChevronLeft,
 } from 'lucide-vue-next'
@@ -137,36 +134,36 @@ onBeforeUnmount(() => {
               <span v-if="!isCollapsed" class="ml-2">지역</span>
             </Button>
           </li>
-          <li>
-            <Button
-              :variant="activeMenu === 'stats' ? 'secondary' : 'ghost'"
-              class="w-full justify-start"
-              @click="setActiveMenu('stats')"
-            >
-              <BarChart class="h-4 w-4" />
-              <span v-if="!isCollapsed" class="ml-2">통계</span>
-            </Button>
-          </li>
-          <li>
-            <Button
-              :variant="activeMenu === 'stats' ? 'secondary' : 'ghost'"
-              class="w-full justify-start"
-              @click="setActiveMenu('users')"
-            >
-              <Users class="h-4 w-4" />
-              <span v-if="!isCollapsed" class="ml-2">사용자 목록</span>
-            </Button>
-          </li>
-          <li>
-            <Button
-              :variant="activeMenu === 'stats' ? 'secondary' : 'ghost'"
-              class="w-full justify-start"
-              @click="setActiveMenu('notifications')"
-            >
-              <Bell class="h-4 w-4" />
-              <span v-if="!isCollapsed" class="ml-2">알림</span>
-            </Button>
-          </li>
+          <!--          <li>-->
+          <!--            <Button-->
+          <!--              :variant="activeMenu === 'stats' ? 'secondary' : 'ghost'"-->
+          <!--              class="w-full justify-start"-->
+          <!--              @click="setActiveMenu('stats')"-->
+          <!--            >-->
+          <!--              <BarChart class="h-4 w-4" />-->
+          <!--              <span v-if="!isCollapsed" class="ml-2">통계</span>-->
+          <!--            </Button>-->
+          <!--          </li>-->
+          <!--          <li>-->
+          <!--            <Button-->
+          <!--              :variant="activeMenu === 'stats' ? 'secondary' : 'ghost'"-->
+          <!--              class="w-full justify-start"-->
+          <!--              @click="setActiveMenu('users')"-->
+          <!--            >-->
+          <!--              <Users class="h-4 w-4" />-->
+          <!--              <span v-if="!isCollapsed" class="ml-2">사용자 목록</span>-->
+          <!--            </Button>-->
+          <!--          </li>-->
+          <!--          <li>-->
+          <!--            <Button-->
+          <!--              :variant="activeMenu === 'stats' ? 'secondary' : 'ghost'"-->
+          <!--              class="w-full justify-start"-->
+          <!--              @click="setActiveMenu('notifications')"-->
+          <!--            >-->
+          <!--              <Bell class="h-4 w-4" />-->
+          <!--              <span v-if="!isCollapsed" class="ml-2">알림</span>-->
+          <!--            </Button>-->
+          <!--          </li>-->
           <li>
             <Button
               :variant="activeMenu === 'stats' ? 'secondary' : 'ghost'"
@@ -196,9 +193,9 @@ onBeforeUnmount(() => {
           @click="setActiveMenu('profile')"
         >
           <img
-            src="@/assets/placeholder.svg?height=32&width=32"
+            src="@/assets/no_picture.png"
             alt="User"
-            class="w-8 h-8 rounded-full"
+            class="w-10 h-10 rounded-full"
           />
           <span v-if="!isCollapsed" class="ml-2">{{
             userInfo?.userName || '사용자 이름'
@@ -229,16 +226,16 @@ onBeforeUnmount(() => {
       >
         <h1 class="text-xl font-semibold">CatchTrip</h1>
         <div class="flex items-center space-x-2">
-          <Button size="icon" variant="ghost" @click="setActiveMenu('users')">
-            <Users class="h-5 w-5" />
-          </Button>
-          <Button
-            size="icon"
-            variant="ghost"
-            @click="setActiveMenu('notifications')"
-          >
-            <Bell class="h-5 w-5" />
-          </Button>
+          <!--          <Button size="icon" variant="ghost" @click="setActiveMenu('users')">-->
+          <!--            <Users class="h-5 w-5" />-->
+          <!--          </Button>-->
+          <!--          <Button-->
+          <!--            size="icon"-->
+          <!--            variant="ghost"-->
+          <!--            @click="setActiveMenu('notifications')"-->
+          <!--          >-->
+          <!--            <Bell class="h-5 w-5" />-->
+          <!--          </Button>-->
           <Button
             size="icon"
             variant="ghost"
