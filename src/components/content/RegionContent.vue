@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted } from 'vue'
 import { useHotPlacesStore } from '@/stores/hotplaces'
 
 import { Button } from '@/components/ui/button'
@@ -12,22 +12,18 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel'
-import { ChevronDown, Heart } from 'lucide-vue-next'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton/index.js'
 
 const hotPlaces = useHotPlacesStore()
-
-const likedLocations = ref([])
-
-const toggleLike = locationId => {
-  const index = likedLocations.value.indexOf(locationId)
-  if (index === -1) {
-    likedLocations.value.push(locationId)
-  } else {
-    likedLocations.value.splice(index, 1)
-  }
-}
 
 onMounted(() => {
   hotPlaces.fetchPlaces() // store 의 fetchPlaces 메서드 호출
@@ -77,188 +73,158 @@ const getPlaceImageSrc = image => {
 
 <template>
   <div class="space-y-6">
-    <!-- Category Title -->
-    <h3 class="text-2xl font-semibold">우리 지역,</h3>
-    <div class="flex items-center gap-2">
-      <div class="relative inline-block">
-        <select
-          class="appearance-none bg-transparent pr-8 font-semibold text-lg focus:outline-none"
-          v-model="hotPlaces.hotPlaceType"
-          aria-label="카테고리 선택"
-        >
-          <option
-            v-for="category in categories"
-            :key="category.id"
-            :value="category.id"
+    <!-- Region Selector -->
+    <Card>
+      <Carousel
+        :opts="{
+          align: 'start',
+          loop: true,
+        }"
+        class="w-full max-w-sm mx-auto"
+      >
+        <CarouselContent>
+          <CarouselItem
+            v-for="area in areas"
+            :key="area.id"
+            class="basis-1/5 self-center"
           >
-            {{ category.name }}
-          </option>
-        </select>
-        <ChevronDown
-          class="absolute right-0 top-1/2 -translate-y-1/2 h-5 w-5 pointer-events-none"
-        />
-      </div>
-      <span class="text-lg"> 알려드릴게요!</span>
-    </div>
-
-    <div>
-      <!-- Region Selector -->
-      <Card>
-        <Carousel
-          :opts="{
-            align: 'start',
-            loop: true,
-          }"
-          class="w-full max-w-sm mx-auto"
-        >
-          <CarouselContent>
-            <CarouselItem
-              v-for="area in areas"
-              :key="area.id"
-              class="basis-1/5 self-center"
-            >
-              <div class="p-1">
-                <Button
-                  variant="ghost"
-                  class="w-full flex flex-col items-center gap-2 h-auto py-2"
-                  @click="hotPlaces.regionCode = area.id"
+            <div class="p-1">
+              <Button
+                variant="ghost"
+                class="w-full flex flex-col items-center gap-2 h-auto py-2"
+                @click="hotPlaces.regionCode = area.id"
+              >
+                <div
+                  :class="
+                    cn(
+                      'w-12 h-12 rounded-full overflow-hidden box-content',
+                      hotPlaces.regionCode === area.id
+                        ? 'border-2 border-black'
+                        : 'border-none',
+                    )
+                  "
                 >
-                  <div
-                    :class="
-                      cn(
-                        'w-12 h-12 rounded-full overflow-hidden box-content',
-                        hotPlaces.regionCode === area.id
-                          ? 'border-2 border-black'
-                          : 'border-none',
-                      )
-                    "
-                  >
-                    <img
-                      :src="getAreaImageSrc(area.id)"
-                      :alt="area.name"
-                      class="w-full h-full object-cover"
-                    />
-                  </div>
-                  <span
-                    :class="
-                      cn(
-                        hotPlaces.regionCode === area.id
-                          ? 'text-lg font-semibold'
-                          : 'text-sm',
-                      )
-                    "
-                    >{{ area.name }}</span
-                  >
-                </Button>
-              </div>
-            </CarouselItem>
-          </CarouselContent>
-          <CarouselPrevious />
-          <CarouselNext />
-        </Carousel>
-      </Card>
-      <!-- Map -->
-      <div class="lg:w-1/2">
-        <div
-          class="aspect-[4/3] bg-gray-100 rounded-lg border relative overflow-hidden"
+                  <img
+                    :src="getAreaImageSrc(area.id)"
+                    :alt="area.name"
+                    class="w-full h-full object-cover"
+                  />
+                </div>
+                <span
+                  :class="
+                    cn(
+                      hotPlaces.regionCode === area.id
+                        ? 'text-lg font-semibold'
+                        : 'text-sm',
+                    )
+                  "
+                  >{{ area.name }}</span
+                >
+              </Button>
+            </div>
+          </CarouselItem>
+        </CarouselContent>
+        <CarouselPrevious />
+        <CarouselNext />
+      </Carousel>
+    </Card>
+
+    <!-- Map and Location List-->
+    <div class="grid lg:grid-cols-[2fr_1fr] grid-cols-1fr gap-2">
+      <div>
+        <!-- Category Title -->
+        <Select
+          v-model="hotPlaces.hotPlaceType"
+          :disabled="hotPlaces.loading"
+          @update:modelValue="hotPlaces.loading = true"
         >
+          <SelectTrigger class="w-[120px]">
+            <SelectValue :placeholder="hotPlaces.hotPlaceType" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectItem
+                :key="category.id"
+                v-for="category in categories"
+                :value="category.id"
+              >
+                {{ category.name }}
+              </SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+        <!-- Map -->
+        <Card class="w-full h-min mt-2">
           <component
             :is="hotPlaces.renderMap"
             :class="
               cn(
-                'absolute inset-0 w-full h-full transition-opacity duration-500',
+                'relative inset-0 w-full h-full transition-opacity duration-500',
                 hotPlaces.loading ? 'opacity-30' : 'opacity-100',
               )
             "
           />
+        </Card>
+      </div>
+
+      <!-- Location List -->
+      <ScrollArea class="h-[calc(100vh-300px)]">
+        <div class="pr-4 space-y-2">
+          <template v-if="hotPlaces.loading">
+            <Card class="overflow-hidden" v-for="index in 5" :key="index">
+              <CardContent class="p-0">
+                <div class="flex">
+                  <div class="w-1/3">
+                    <Skeleton class="w-full h-full aspect-square object-cove" />
+                  </div>
+                  <div class="w-2/3 p-4 space-y-2">
+                    <Skeleton class="h-1/2 w-3/4" />
+                    <div class="flex h-1/2 flex-wrap gap-2">
+                      <Skeleton class="h-1/2 w-1/4" />
+                      <Skeleton class="h-1/2 w-1/4" />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </template>
+          <template v-else>
+            <Card
+              v-for="place in hotPlaces.places"
+              :key="place.contentId"
+              class="overflow-hidden"
+            >
+              <CardContent class="p-0">
+                <div class="flex">
+                  <div class="w-1/3">
+                    <img
+                      :src="getPlaceImageSrc(place.firstImage)"
+                      :alt="place.title"
+                      class="lg:w-50 lg:h-50 object-cover aspect-square"
+                    />
+                  </div>
+                  <div class="w-2/3 p-4 lg:p-2 space-y-2">
+                    <div class="flex justify-between items-start">
+                      <h3 class="font-semibold text-lg">{{ place.title }}</h3>
+                    </div>
+                    <p class="text-sm text-gray-500">{{ place.region }}</p>
+                    <div class="flex flex-wrap gap-2">
+                      <span
+                        v-for="tag in place.tags"
+                        :key="tag"
+                        class="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-full"
+                      >
+                        #{{ tag }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </template>
         </div>
-      </div>
+      </ScrollArea>
     </div>
-
-    <!-- Location List -->
-
-    <ScrollArea class="h-[calc(100vh-300px)]">
-      <div class="pr-4 space-y-4">
-        <template v-if="hotPlaces.loading">
-          <Card class="overflow-hidden" v-for="index in 4" :key="index">
-            <CardContent class="p-0">
-              <div class="flex">
-                <div class="w-1/3">
-                  <Skeleton class="h-full aspect-square" />
-                </div>
-                <div class="w-2/3 p-4 space-y-2">
-                  <Skeleton class="h-6 w-3/4" />
-                  <Skeleton class="h-4 w-1/2" />
-                  <div class="flex flex-wrap gap-2">
-                    <Skeleton class="h-6 w-16" />
-                    <Skeleton class="h-6 w-20" />
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </template>
-        <template v-else>
-          <Card
-            v-for="place in hotPlaces.places"
-            :key="place.contentId"
-            class="overflow-hidden"
-          >
-            <CardContent class="p-0">
-              <div class="flex">
-                <div class="w-1/3">
-                  <img
-                    :src="getPlaceImageSrc(place.firstImage)"
-                    :alt="place.title"
-                    class="w-full h-full object-cover aspect-square"
-                  />
-                </div>
-                <div class="w-2/3 p-4 space-y-2">
-                  <div class="flex justify-between items-start">
-                    <h3 class="font-semibold text-lg">{{ place.title }}</h3>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      :class="
-                        cn(
-                          'rounded-full',
-                          likedLocations.includes(place.id) && 'text-red-500',
-                        )
-                      "
-                      @click="toggleLike(place.id)"
-                      :aria-label="
-                        likedLocations.includes(place.id)
-                          ? '좋아요 취소'
-                          : '좋아요'
-                      "
-                    >
-                      <Heart
-                        class="h-5 w-5"
-                        :fill="
-                          likedLocations.includes(place.id)
-                            ? 'currentColor'
-                            : 'none'
-                        "
-                      />
-                    </Button>
-                  </div>
-                  <p class="text-sm text-gray-500">{{ place.region }}</p>
-                  <div class="flex flex-wrap gap-2">
-                    <span
-                      v-for="tag in place.tags"
-                      :key="tag"
-                      class="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-full"
-                    >
-                      #{{ tag }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </template>
-      </div>
-    </ScrollArea>
   </div>
 </template>
 
