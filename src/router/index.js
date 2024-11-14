@@ -1,8 +1,8 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import { createRouter, createWebHistory } from 'vue-router';
+import HomeView from '../views/HomeView.vue';
 import LoginView from "@/views/LoginView.vue";
 import SignupView from "@/views/SignupView.vue";
-import { useUserStore } from '@/stores/user.js'
+import { useUserStore } from '@/stores/user.js';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -10,22 +10,21 @@ const router = createRouter({
     {
       path: '/',
       redirect: to => {
-        const userStore = useUserStore()
-        // 로그인 여부에 따라 리다이렉트
-        return userStore.isLoggedIn ? '/home' : '/login'
+        const userStore = useUserStore();
+        return userStore.isLoggedIn ? '/home' : '/login';
       }
     },
     {
       path: '/login',
       name: 'login',
       component: LoginView,
-      meta: { requiresGuest: true }, // 로그인하지 않은 사용자만 접근 가능
+      meta: { requiresGuest: true },
     },
     {
       path: '/home',
       name: 'home',
       component: HomeView,
-      meta: { requiresAuth: true } // 인증된 사용자만 접근 가능
+      meta: { requiresAuth: true },
     },
     {
       path: '/signup',
@@ -34,9 +33,8 @@ const router = createRouter({
       meta: { requiresGuest: true }
     },
   ],
-})
+});
 
-// 네비게이션 가드 추가
 router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore();
 
@@ -64,4 +62,4 @@ router.beforeEach(async (to, from, next) => {
 });
 
 
-export default router
+export default router;

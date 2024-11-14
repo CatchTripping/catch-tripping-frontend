@@ -14,24 +14,9 @@ const rememberMe = ref(false)
 const userStore = useUserStore()
 
 const login = async () => {
-  try {
-    const loginSuccess = await userStore.login(
-      username.value,
-      password.value,
-      rememberMe.value,
-    )
-    console.log('Login success:', loginSuccess) // 디버깅용 로그
-    console.log('IsLoggedIn after login:', userStore.isLoggedIn) // 디버깅용 로그
-
-    // if (userStore.isLoggedIn) {
-    if (loginSuccess) {
-      await router.push('/home')
-    } else {
-      throw new Error('Login state not set properly')
-    }
-  } catch (error) {
-    console.error('Login Failed:', error)
-    alert('로그인 실패. 아이디와 비밀번호를 확인하세요.')
+  const loginSuccess = await userStore.login(username.value, password.value, rememberMe.value);
+  if (loginSuccess) {
+    await router.push('/home');
   }
 }
 </script>
