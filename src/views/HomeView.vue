@@ -10,7 +10,7 @@ import {
   HelpCircle,
   ChevronLeft,
 } from 'lucide-vue-next'
-import Logo from '@/components/icon/MainLogo.vue'
+
 import HomeContent from '@/components/content/HomeContent.vue'
 import MapContent from '@/components/content/MapContent.vue'
 import StatsContent from '@/components/content/StatsContent.vue'
@@ -89,17 +89,12 @@ onBeforeUnmount(() => {
       v-if="!isMobile"
       :class="[
         'bg-white min-h-screen flex flex-col transition-all duration-300',
-        isCollapsed ? 'w-16' : 'w-56',
+        isCollapsed ? 'w-16 min-w-16' : 'w-48 min-w-48',
         'relative',
       ]"
     >
-      <div
-        :class="[
-          'p-4 border-b flex items-center',
-          isCollapsed ? 'justify-center' : 'justify-start',
-        ]"
-      >
-        <Logo v-if="isCollapsed" />
+      <div :class="['p-4 border-b flex items-center', 'justify-start']">
+        <h1 v-if="isCollapsed" class="text-2xl font-bold">CT</h1>
         <h1 v-else class="text-2xl font-bold">CatchTrip</h1>
       </div>
       <nav class="flex-grow">
@@ -134,36 +129,6 @@ onBeforeUnmount(() => {
               <span v-if="!isCollapsed" class="ml-2">지역</span>
             </Button>
           </li>
-          <!--          <li>-->
-          <!--            <Button-->
-          <!--              :variant="activeMenu === 'stats' ? 'secondary' : 'ghost'"-->
-          <!--              class="w-full justify-start"-->
-          <!--              @click="setActiveMenu('stats')"-->
-          <!--            >-->
-          <!--              <BarChart class="h-4 w-4" />-->
-          <!--              <span v-if="!isCollapsed" class="ml-2">통계</span>-->
-          <!--            </Button>-->
-          <!--          </li>-->
-          <!--          <li>-->
-          <!--            <Button-->
-          <!--              :variant="activeMenu === 'stats' ? 'secondary' : 'ghost'"-->
-          <!--              class="w-full justify-start"-->
-          <!--              @click="setActiveMenu('users')"-->
-          <!--            >-->
-          <!--              <Users class="h-4 w-4" />-->
-          <!--              <span v-if="!isCollapsed" class="ml-2">사용자 목록</span>-->
-          <!--            </Button>-->
-          <!--          </li>-->
-          <!--          <li>-->
-          <!--            <Button-->
-          <!--              :variant="activeMenu === 'stats' ? 'secondary' : 'ghost'"-->
-          <!--              class="w-full justify-start"-->
-          <!--              @click="setActiveMenu('notifications')"-->
-          <!--            >-->
-          <!--              <Bell class="h-4 w-4" />-->
-          <!--              <span v-if="!isCollapsed" class="ml-2">알림</span>-->
-          <!--            </Button>-->
-          <!--          </li>-->
           <li>
             <Button
               :variant="activeMenu === 'stats' ? 'secondary' : 'ghost'"
@@ -186,7 +151,7 @@ onBeforeUnmount(() => {
           </li>
         </ul>
       </nav>
-      <div :class="['p-4 border-t', isCollapsed ? 'flex justify-center' : '']">
+      <div class="p-3 border-t flex justify-center">
         <Button
           variant="ghost"
           class="w-full justify-start p-0"
@@ -198,14 +163,15 @@ onBeforeUnmount(() => {
             class="w-10 h-10 rounded-full"
           />
           <span v-if="!isCollapsed" class="ml-2">{{
-            userInfo?.userName || '사용자 이름'
+            userInfo?.userName || '귀여운 토끼'
           }}</span>
         </Button>
       </div>
+      <!-- 여닫이-->
       <Button
         variant="ghost"
         size="icon"
-        class="absolute -right-3 top-1/2 transform -translate-y-1/2 bg-white border border-gray-200 rounded-full shadow-md"
+        class="absolute -right-3 top-1/2 bg-white border border-gray-200 rounded-full shadow-md"
         @click="setIsCollapsed(!isCollapsed)"
       >
         <ChevronLeft
@@ -257,7 +223,7 @@ onBeforeUnmount(() => {
         ]"
       >
         <div class="flex justify-center items-center w-full">
-          <component id="main-component" :is="renderContent" />
+          <component class="w-full" id="main-component" :is="renderContent" />
         </div>
       </main>
 
@@ -271,17 +237,4 @@ onBeforeUnmount(() => {
   </div>
 </template>
 
-<style scoped>
-/* 스타일을 여기에 추가할 수 있습니다 */
-@media (max-width: 900px) {
-  #main-component {
-    width: 500px; /* 모바일 화면에서는 90%로 설정 */
-  }
-}
-
-@media (min-width: 900px) {
-  #main-component {
-    width: 800px; /* 769px 이상에서는 고정 width */
-  }
-}
-</style>
+<style scoped></style>
