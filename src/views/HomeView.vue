@@ -9,6 +9,7 @@ import {
   Home,
   HelpCircle,
   ChevronLeft,
+  ImagePlus
 } from 'lucide-vue-next'
 
 import HomeContent from '@/components/content/HomeContent.vue'
@@ -21,16 +22,21 @@ import ProfileContent from '@/components/content/ProfileContent.vue'
 import NotificationsContent from '@/components/content/NotificationsContent.vue'
 import SettingsContent from '@/components/content/SettingsContent.vue'
 import RegionContent from '@/components/content/RegionContent.vue'
+import CreatePostDialog from '@/components/content/CreatePostDialog.vue'
 import { useUserStore } from '@/stores/user'
+import { useDialogStore } from '@/stores/dialog'
 
 // 유저 정보 및 로그아웃 함수 정의
 const userStore = useUserStore()
 const userInfo = userStore.userInfo // userInfo 상태 가져오기
 
+const dialogStore = useDialogStore()
+
 // 상태 변수
 const isCollapsed = ref(false)
 const activeMenu = ref('home')
 const isMobile = ref(false)
+const isCreatePostDialogOpen = ref(false)
 
 const renderContent = computed(() => {
   switch (activeMenu.value) {
@@ -64,6 +70,15 @@ const setIsCollapsed = collapsed => {
 
 const setActiveMenu = menu => {
   activeMenu.value = menu
+}
+
+// 다이얼로그 열기/닫기 함수
+const openCreatePostDialog = () => {
+  isCreatePostDialogOpen.value = true
+}
+
+const closeCreatePostDialog = () => {
+  isCreatePostDialogOpen.value = false
 }
 
 // 윈도우 크기 변경에 따라 사이드바 크기 조정
@@ -127,6 +142,16 @@ onBeforeUnmount(() => {
             >
               <MapPinned class="h-4 w-4" />
               <span v-if="!isCollapsed" class="ml-2">지역</span>
+            </Button>
+          </li>
+          <li>
+            <Button
+              :variant="activeMenu === 'region' ? 'secondary' : 'ghost'"
+              class="w-full justify-start"
+              @click="dialogStore.openCreatePostDialog"
+            >
+              <MapPinned class="h-4 w-4" />
+              <span v-if="!isCollapsed" class="ml-2">만들기</span>
             </Button>
           </li>
           <li>
@@ -226,6 +251,9 @@ onBeforeUnmount(() => {
           <component class="w-full" id="main-component" :is="renderContent" />
         </div>
       </main>
+
+      <!-- 다이얼로그 컴포넌트 -->
+      <CreatePostDialog />
 
       <!-- Bottom Navigation for mobile -->
       <BottomNavigation
