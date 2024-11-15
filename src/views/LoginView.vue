@@ -14,9 +14,13 @@ const rememberMe = ref(false)
 const userStore = useUserStore()
 
 const login = async () => {
-  const loginSuccess = await userStore.login(username.value, password.value, rememberMe.value);
+  const loginSuccess = await userStore.login(
+    username.value,
+    password.value,
+    rememberMe.value,
+  )
   if (loginSuccess) {
-    await router.push('/home');
+    await router.push('/home')
   }
 }
 </script>
