@@ -14,12 +14,9 @@ import {
 
 import HomeContent from '@/components/content/HomeContent.vue'
 import MapContent from '@/components/content/MapContent.vue'
-import StatsContent from '@/components/content/StatsContent.vue'
-import UsersContent from '@/components/content/UsersContent.vue'
 import HelpContent from '@/components/content/HelpContent.vue'
 import BottomNavigation from '@/components/content/BottomNavigation.vue'
 import ProfileContent from '@/components/content/ProfileContent.vue'
-import NotificationsContent from '@/components/content/NotificationsContent.vue'
 import SettingsContent from '@/components/content/SettingsContent.vue'
 import RegionContent from '@/components/content/RegionContent.vue'
 import CreatePostDialog from '@/components/content/CreatePostDialog.vue'
@@ -46,14 +43,8 @@ const renderContent = computed(() => {
       return MapContent
     case 'region':
       return RegionContent
-    case 'stats':
-      return StatsContent
     case 'profile':
       return ProfileContent
-    case 'users':
-      return UsersContent
-    case 'notifications':
-      return NotificationsContent
     case 'settings':
       return SettingsContent
     case 'help':
@@ -243,7 +234,7 @@ onBeforeUnmount(() => {
       <!-- Scrollable Content -->
       <main
         :class="[
-          'flex-grow p-6 overflow-auto bg-gray-100 space-y-6',
+          'flex-grow overflow-auto bg-gray-100 space-y-6',
           isMobile ? 'pb-20' : '',
         ]"
       >

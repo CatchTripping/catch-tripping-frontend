@@ -50,6 +50,9 @@ importers:
       vue-router:
         specifier: ^4.4.5
         version: 4.4.5(vue@3.5.12(typescript@5.6.3))
+      vue3-kakao-maps:
+        specifier: ^2.3.10
+        version: 2.3.10
     devDependencies:
       '@eslint/js':
         specifier: ^9.12.0
@@ -1433,6 +1436,9 @@ packages:
   jsonfile@6.1.0:
     resolution: {integrity: sha512-5dgndWOriYSm5cnYaJNhalLNDKOqFwyDB/rr1E9ZsGciGvKPs8R2xYGCacuf3z6K1YKDz182fd+fY3cn3pMqXQ==}
 
+  kakao.maps.d.ts@0.1.40:
+    resolution: {integrity: sha512-nX69MB1ok04epe3OqS+/tEeWBbU31GSQbvDPJmQRRltzzqn6t4jBsO5v1nzalUjCKzwcH2CptOc767NZ7Hbu3g==}
+
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
 
@@ -2101,6 +2107,9 @@ packages:
     resolution: {integrity: sha512-4fKZygS8cH1yCyuabAXGUAsyi1b2/o/OKgu/RUb+znIYOxPRxdkytJEx+0wGcpBE1pX6vUgh5jwWOKRGvuA/7Q==}
     peerDependencies:
       vue: ^3.2.0
+
+  vue3-kakao-maps@2.3.10:
+    resolution: {integrity: sha512-vzzxvdw1ZtyID4clA/LFg++Qf1uTq49ksnL3ejqbp/rB+WVRrulSQ0ja+L929VFehbQY628lJPsp9KwxC6VrNA==}
 
   vue@3.5.12:
     resolution: {integrity: sha512-CLVZtXtn2ItBIi/zHZ0Sg1Xkb7+PU32bJJ8Bmy7ts3jxXTcbfsEfBivFYYWz1Hur+lalqGAh65Coin0r+HRUfg==}
@@ -3571,6 +3580,8 @@ snapshots:
     optionalDependencies:
       graceful-fs: 4.2.11
 
+  kakao.maps.d.ts@0.1.40: {}
+
   keyv@4.5.4:
     dependencies:
       json-buffer: 3.0.1
@@ -4216,6 +4227,10 @@ snapshots:
     dependencies:
       '@vue/devtools-api': 6.6.4
       vue: 3.5.12(typescript@5.6.3)
+
+  vue3-kakao-maps@2.3.10:
+    dependencies:
+      kakao.maps.d.ts: 0.1.40
 
   vue@3.5.12(typescript@5.6.3):
     dependencies:

@@ -52,7 +52,7 @@ const onSearchClick = () => {
 </script>
 
 <template>
-  <div class="space-y-6">
+  <div class="space-y-6 p-6 max-w-[600px]">
     <h2 class="text-2xl font-bold">홈</h2>
     <!-- 검색바 -->
     <div class="flex items-center space-x-2 mb-4">

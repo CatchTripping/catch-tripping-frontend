@@ -14,9 +14,13 @@ const rememberMe = ref(false)
 const userStore = useUserStore()
 
 const login = async () => {
-  const loginSuccess = await userStore.login(username.value, password.value, rememberMe.value);
+  const loginSuccess = await userStore.login(
+    username.value,
+    password.value,
+    rememberMe.value,
+  )
   if (loginSuccess) {
-    await router.push('/home');
+    await router.push('/home')
   }
 }
 </script>
@@ -28,7 +32,7 @@ const login = async () => {
     <div class="w-full max-w-md bg-white rounded-lg shadow-md p-8 space-y-4">
       <div class="text-center">
         <!--        <InstagramIcon class="w-16 h-16 mx-auto text-pink-500" />-->
-        <h1 class="text-2xl font-bold mt-2 mb-4">Instagram</h1>
+        <h1 class="text-2xl font-bold mt-2 mb-4">Catch Tripping</h1>
       </div>
       <form class="space-y-4" @submit.prevent="login">
         <div class="space-y-2">

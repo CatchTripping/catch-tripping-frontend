@@ -23,6 +23,8 @@ import {
 import { cn } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton/index.js'
 
+import { ImageOff } from 'lucide-vue-next'
+
 const hotPlaces = useHotPlacesStore()
 
 onMounted(() => {
@@ -62,14 +64,6 @@ const getAreaImageSrc = areaId => {
   ).href
 }
 
-const getPlaceImageSrc = image => {
-  if (image === '') {
-    return new URL(`/src/assets/no_picture.png`, import.meta.url).href
-  } else {
-    return new URL(image)
-  }
-}
-
 watch(
   () => hotPlaces.hotPlaceType,
   () => {
@@ -93,28 +87,40 @@ watch(
 </script>
 
 <template>
-  <div class="space-y-6">
-    <!-- Category Title -->
-    <Select
-      v-model="hotPlaces.hotPlaceType"
-      :disabled="hotPlaces.loading"
-      @update:modelValue="hotPlaces.loading = true"
-    >
-      <SelectTrigger class="w-[120px]">
-        <SelectValue :placeholder="hotPlaces.hotPlaceType" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectGroup>
-          <SelectItem
-            :key="category.id"
-            v-for="category in categories"
-            :value="category.id"
-          >
-            {{ category.name }}
-          </SelectItem>
-        </SelectGroup>
-      </SelectContent>
-    </Select>
+  <div class="space-y-6 p-6 max-w-[900px]">
+    <div class="flex flex-row gap-3">
+      <!-- Title-->
+      <p class="text-2xl font-bold my-auto">대한민국의</p>
+      <!-- Category Title -->
+      <Select
+        v-model="hotPlaces.hotPlaceType"
+        :disabled="hotPlaces.loading"
+        @update:modelValue="hotPlaces.loading = true"
+      >
+        <SelectTrigger
+          class="w-[100px] p-0 border-none bg-transparent font-bold text-2xl"
+        >
+          <SelectValue
+            class="text-gradient"
+            :placeholder="hotPlaces.hotPlaceType"
+          />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectItem
+              :key="category.id"
+              v-for="category in categories"
+              :value="category.id"
+            >
+              {{ category.name }}
+            </SelectItem>
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+      <!-- Title-->
+      <p class="text-2xl font-bold my-auto">알려드릴게요!</p>
+    </div>
+
     <!-- Region Selector -->
     <Card>
       <Carousel
@@ -133,7 +139,7 @@ watch(
             <div class="p-1">
               <Button
                 variant="ghost"
-                class="w-full flex flex-col items-center gap-2 h-auto py-2"
+                class="w-full flex flex-col items-center gap-2 h-auto py-2 hover:bg-transparent"
                 @click="hotPlaces.setAreaCode(area.id)"
               >
                 <div
@@ -142,7 +148,7 @@ watch(
                       'w-12 h-12 rounded-full overflow-hidden box-content',
                       hotPlaces.regionCode === area.id
                         ? 'border-2 border-black'
-                        : 'border-none',
+                        : 'hover:border-2 hover:border-gray-400',
                     )
                   "
                 >
@@ -217,9 +223,15 @@ watch(
                 <div class="flex">
                   <div class="w-1/3">
                     <img
-                      :src="getPlaceImageSrc(place.firstImage)"
+                      v-if="place.firstImage"
+                      :src="place.firstImage"
                       :alt="place.title"
                       class="lg:w-50 lg:h-50 object-cover aspect-square"
+                    />
+                    <ImageOff
+                      v-else
+                      class="w-full h-full object-cover aspect-square p-6"
+                      color="gray"
                     />
                   </div>
                   <div class="w-2/3 p-4 lg:p-2 space-y-2">
@@ -252,4 +264,11 @@ watch(
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.text-gradient {
+  background: linear-gradient(to top right, #fbbf24, #d946ef);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+</style>
