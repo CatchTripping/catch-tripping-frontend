@@ -13,10 +13,6 @@
   </svg>
 </template>
 
-<script setup>
-// 필요한 script 코드가 있으면 여기에 추가
-</script>
+<script setup></script>
 
-<style scoped>
-/* 스타일을 여기에 추가할 수 있습니다 */
-</style>
+<style scoped></style>

@@ -3,13 +3,12 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import {
-  Settings,
+  ChevronLeft,
+  HelpCircle,
+  Home,
   Map,
   MapPinned,
-  Home,
-  HelpCircle,
-  ChevronLeft,
-  ImagePlus
+  Settings,
 } from 'lucide-vue-next'
 
 import HomeContent from '@/components/content/HomeContent.vue'
@@ -187,7 +186,7 @@ onBeforeUnmount(() => {
       <Button
         variant="ghost"
         size="icon"
-        class="absolute -right-3 top-1/2 bg-white border border-gray-200 rounded-full shadow-md"
+        class="absolute -right-3 top-1/2 bg-white border border-gray-200 rounded-full shadow-md z-50"
         @click="setIsCollapsed(!isCollapsed)"
       >
         <ChevronLeft
@@ -208,16 +207,6 @@ onBeforeUnmount(() => {
       >
         <h1 class="text-xl font-semibold">CatchTrip</h1>
         <div class="flex items-center space-x-2">
-          <!--          <Button size="icon" variant="ghost" @click="setActiveMenu('users')">-->
-          <!--            <Users class="h-5 w-5" />-->
-          <!--          </Button>-->
-          <!--          <Button-->
-          <!--            size="icon"-->
-          <!--            variant="ghost"-->
-          <!--            @click="setActiveMenu('notifications')"-->
-          <!--          >-->
-          <!--            <Bell class="h-5 w-5" />-->
-          <!--          </Button>-->
           <Button
             size="icon"
             variant="ghost"
@@ -231,15 +220,10 @@ onBeforeUnmount(() => {
         </div>
       </header>
 
-      <!-- Scrollable Content -->
-      <main
-        :class="[
-          'flex-grow overflow-auto bg-gray-100 space-y-6',
-          isMobile ? 'pb-20' : '',
-        ]"
-      >
+      <!-- Content -->
+      <main class="flex-grow overflow-auto bg-gray-100">
         <div class="flex justify-center items-center w-full">
-          <component class="w-full" id="main-component" :is="renderContent" />
+          <component class="w-full" :is="renderContent" :is-mobile="isMobile" />
         </div>
       </main>
 

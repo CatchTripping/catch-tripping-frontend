@@ -85,6 +85,4 @@ const login = async () => {
   </div>
 </template>
 
-<style scoped>
-/* 추가적인 스타일이 필요하면 여기 작성 */
-</style>
+<style scoped></style>

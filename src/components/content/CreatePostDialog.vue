@@ -1,83 +1,82 @@
 <script setup>
-import { ref } from "vue";
+import { ref } from 'vue'
 import {
   ImagePlus,
   ArrowLeft,
   ChevronLeft,
   ChevronRight,
-  Smile,
   MapPin,
-} from "lucide-vue-next";
-import { useDialogStore } from "@/stores/dialog";
+} from 'lucide-vue-next'
+import { useDialogStore } from '@/stores/dialog'
 
-const dialogStore = useDialogStore();
+const dialogStore = useDialogStore()
 
-const step = ref(1);
-const images = ref([]);
-const currentImageIndex = ref(0);
-const caption = ref("");
-const location = ref("");
-const fileInputRef = ref(null);
-const isDragging = ref(false);
+const step = ref(1)
+const images = ref([])
+const currentImageIndex = ref(0)
+const caption = ref('')
+const location = ref('')
+const fileInputRef = ref(null)
+const isDragging = ref(false)
 
 const openFileDialog = () => {
-  fileInputRef.value.click();
-};
+  fileInputRef.value.click()
+}
 
-const handleFileChange = (e) => {
-  const files = Array.from(e.target.files);
-  const newImages = files.map((file) => URL.createObjectURL(file));
-  images.value.push(...newImages);
-};
+const handleFileChange = e => {
+  const files = Array.from(e.target.files)
+  const newImages = files.map(file => URL.createObjectURL(file))
+  images.value.push(...newImages)
+}
 
-const handleDragEnter = (e) => {
-  e.preventDefault();
-  isDragging.value = true;
-};
-const handleDragLeave = (e) => {
-  e.preventDefault();
-  isDragging.value = false;
-};
-const handleDrop = (e) => {
-  e.preventDefault();
-  isDragging.value = false;
-  const files = Array.from(e.dataTransfer.files);
-  const newImages = files.map((file) => URL.createObjectURL(file));
-  images.value.push(...newImages);
-};
+const handleDragEnter = e => {
+  e.preventDefault()
+  isDragging.value = true
+}
+const handleDragLeave = e => {
+  e.preventDefault()
+  isDragging.value = false
+}
+const handleDrop = e => {
+  e.preventDefault()
+  isDragging.value = false
+  const files = Array.from(e.dataTransfer.files)
+  const newImages = files.map(file => URL.createObjectURL(file))
+  images.value.push(...newImages)
+}
 
 const nextImage = () => {
   if (currentImageIndex.value < images.value.length - 1) {
-    currentImageIndex.value++;
+    currentImageIndex.value++
   }
-};
+}
 
 const prevImage = () => {
   if (currentImageIndex.value > 0) {
-    currentImageIndex.value--;
+    currentImageIndex.value--
   }
-};
+}
 
 const handleBack = () => {
-  if (step.value === 2) step.value = 1;
+  if (step.value === 2) step.value = 1
   else {
-    images.value = [];
-    currentImageIndex.value = 0;
+    images.value = []
+    currentImageIndex.value = 0
   }
-};
+}
 
 const handleNext = () => {
-  if (step.value === 1 && images.value.length > 0) step.value = 2;
-};
+  if (step.value === 1 && images.value.length > 0) step.value = 2
+}
 
 const handlePost = () => {
   console.log({
     images: images.value,
     location: location.value,
     caption: caption.value,
-  });
-  dialogStore.closeCreatePostDialog();
-};
+  })
+  dialogStore.closeCreatePostDialog()
+}
 </script>
 
 <template>
@@ -92,9 +91,13 @@ const handlePost = () => {
           <ArrowLeft class="h-5 w-5 text-gray-500" />
         </button>
         <h2 class="text-lg font-bold flex-1 text-center">
-          {{ step === 1 ? "새 게시물 만들기" : "자르기" }}
+          {{ step === 1 ? '새 게시물 만들기' : '자르기' }}
         </h2>
-        <button v-if="step === 1 && images.length > 0" @click="handleNext" class="text-blue-500">
+        <button
+          v-if="step === 1 && images.length > 0"
+          @click="handleNext"
+          class="text-blue-500"
+        >
           다음
         </button>
         <button v-if="step === 2" @click="handlePost" class="text-blue-500">
@@ -111,11 +114,13 @@ const handlePost = () => {
           @dragleave="handleDragLeave"
           @dragover.prevent
           @drop.prevent="handleDrop"
-          :class="{'bg-gray-100': isDragging}"
+          :class="{ 'bg-gray-100': isDragging }"
         >
           <ImagePlus class="h-12 w-12 mx-auto" />
           <p>사진과 동영상을 여기에 끌어다 놓으세요</p>
-          <button @click="openFileDialog" class="text-blue-500">컴퓨터에서 선택</button>
+          <button @click="openFileDialog" class="text-blue-500">
+            컴퓨터에서 선택
+          </button>
           <input
             id="fileInput"
             ref="fileInputRef"
@@ -127,8 +132,15 @@ const handlePost = () => {
           />
         </div>
 
-        <div v-else class="relative w-full h-64 flex justify-center items-center">
-          <img :src="images[currentImageIndex]" alt="Uploaded Image" class="object-contain h-full" />
+        <div
+          v-else
+          class="relative w-full h-64 flex justify-center items-center"
+        >
+          <img
+            :src="images[currentImageIndex]"
+            alt="Uploaded Image"
+            class="object-contain h-full"
+          />
           <button
             v-if="currentImageIndex > 0"
             @click="prevImage"
@@ -175,7 +187,8 @@ const handlePost = () => {
         <div class="w-1/3 p-4 space-y-4 flex flex-col">
           <!-- User Info -->
           <div class="flex items-center space-x-2 border-b pb-2">
-            <div class="w-8 h-8 bg-gray-300 rounded-full"></div> <!-- User Avatar Placeholder -->
+            <div class="w-8 h-8 bg-gray-300 rounded-full"></div>
+            <!-- User Avatar Placeholder -->
             <span class="font-semibold">username</span>
           </div>
 
@@ -201,11 +214,15 @@ const handlePost = () => {
           </div>
 
           <!-- Collapsible Settings (Accessibility and Advanced) -->
-          <button class="w-full text-left py-2 border-b flex items-center justify-between">
+          <button
+            class="w-full text-left py-2 border-b flex items-center justify-between"
+          >
             접근성
             <ChevronRight class="h-4 w-4 text-gray-500" />
           </button>
-          <button class="w-full text-left py-2 border-b flex items-center justify-between">
+          <button
+            class="w-full text-left py-2 border-b flex items-center justify-between"
+          >
             고급 설정
             <ChevronRight class="h-4 w-4 text-gray-500" />
           </button>

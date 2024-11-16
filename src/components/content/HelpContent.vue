@@ -23,6 +23,4 @@ import { Input } from '@/components/ui/input/index.js'
   </div>
 </template>
 
-<style scoped>
-/* 필요한 스타일을 여기에 추가하세요 */
-</style>
+<style scoped></style>

@@ -16,7 +16,7 @@ defineProps({
 </script>
 
 <template>
-  <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200">
+  <nav class="bg-white border-t border-gray-200 z-30">
     <ul class="flex justify-around items-center h-16">
       <li class="flex-1 flex justify-center">
         <Button
@@ -62,6 +62,4 @@ defineProps({
   </nav>
 </template>
 
-<style scoped>
-/* 여기에 필요한 스타일을 추가할 수 있습니다 */
-</style>
+<style scoped></style>

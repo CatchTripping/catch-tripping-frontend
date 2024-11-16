@@ -4,16 +4,10 @@ import { KakaoMap, KakaoMapMarker } from 'vue3-kakao-maps'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Card, CardContent } from '@/components/ui/card'
-import {
-  Star,
-  Plus,
-  Minus,
-  Crosshair,
-  ChevronRight,
-  ChevronLeft,
-} from 'lucide-vue-next'
+import { Star, Plus, Minus, Crosshair } from 'lucide-vue-next'
 import {
   Pagination,
+  PaginationEllipsis,
   PaginationFirst,
   PaginationLast,
   PaginationList,
@@ -21,6 +15,13 @@ import {
   PaginationNext,
   PaginationPrev,
 } from '@/components/ui/pagination'
+
+const props = defineProps({
+  isMobile: {
+    type: Boolean,
+    required: true,
+  },
+})
 
 const coordinate = {
   lat: 37.566826,
@@ -76,63 +77,129 @@ const locations = [
     hours: '매일 17:00 ~ 05:00',
     tel: '031-317-7239',
   },
+  {
+    id: 4,
+    name: '지글보고싶다 시흥대야점',
+    category: '족발·보쌈',
+    rating: 5.0,
+    reviews: 32,
+    distance: '리뷰 2건',
+    address: '경기 시흥시 비둘기공원5길 12 2층 204, 205호',
+    addressDetail: '(지번) 대야동 531-2',
+    hours: '매일 17:00 ~ 05:00',
+    tel: '031-317-7239',
+  },
 ]
 
+// 카카오맵 설정
+const map = ref()
+const onLoadKakaoMap = mapRef => {
+  map.value = mapRef
+}
+
+// 현재 위치
+const latitude = ref(null)
+const longitude = ref(null)
+
+// 페이징  설정
+const page = ref(1) // 현재 페이지
+const itemsPerPage = ref(2) // 페이지 당 아이템 개수
+const total = ref(locations.length) // 총 아이템 개수
+
+// page 와 itemsPerPage 에 맞게 locations 배열을 슬라이싱하는 computed
+const paginatedLocations = computed(() => {
+  const start = (page.value - 1) * itemsPerPage.value
+  const end = start + itemsPerPage.value
+  return locations.slice(start, end)
+})
+
 const selectedLocation = ref(null)
-const currentPage = ref(1)
-const isListOpen = ref(true)
-const locationsPerPage = 2
-const totalPages = computed(() =>
-  Math.ceil(locations.length / locationsPerPage),
-)
 
-const indexOfLastLocation = computed(() => currentPage.value * locationsPerPage)
-const indexOfFirstLocation = computed(
-  () => indexOfLastLocation.value - locationsPerPage,
-)
-const currentLocations = computed(() =>
-  locations.slice(indexOfFirstLocation.value, indexOfLastLocation.value),
-)
+const zoomIn = () => {
+  // 현재 지도의 레벨을 얻어옵니다
+  if (map.value) {
+    const level = map.value.getLevel()
 
-const toggleList = () => {
-  isListOpen.value = !isListOpen.value
+    // 지도를 1레벨 내립니다 (지도가 확대됩니다)
+    map.value.setLevel(level - 1)
+  }
 }
+const zoomOut = () => {
+  // 현재 지도의 레벨을 얻어옵니다
+  if (map.value) {
+    const level = map.value.getLevel()
 
-const setSelectedLocation = id => {
-  selectedLocation.value = id
-}
-
-const setCurrentPage = page => {
-  if (page < 1) {
-    currentPage.value = 1
-  } else if (page > totalPages.value) {
-    currentPage.value = totalPages.value
-  } else {
-    currentPage.value = page
+    // 지도를 1레벨 올립니다 (지도가 축소됩니다)
+    map.value.setLevel(level + 1)
   }
 }
 
-const zoomIn = () => {
-  /* Implement zoom in logic */
-}
-const zoomOut = () => {
-  /* Implement zoom out logic */
-}
 const centerMap = () => {
-  /* Implement center map logic */
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        latitude.value = position.coords.latitude
+        longitude.value = position.coords.longitude
+
+        if (map.value) {
+          // 지도 중심을 부드럽게 이동시킵니다
+          // 만약 이동할 거리가 지도 화면보다 크면 부드러운 효과 없이 이동합니다
+          map.value.panTo(
+            new kakao.maps.LatLng(
+              position.coords.latitude,
+              position.coords.longitude,
+            ),
+          )
+        }
+      },
+      error => {
+        console.error('위치를 가져오는데 실패했습니다.', error)
+        alert('위치를 가져오는데 실패했습니다.')
+      },
+    )
+  } else {
+    alert('Geolocation을 지원하지 않는 브라우저입니다.')
+  }
 }
 </script>
 <template>
   <!-- Main Content -->
-  <div class="flex flex-col sm:flex-row flex-1 overflow-hidden">
+  <div class="flex flex-col sm:flex-row">
     <!-- Map Area -->
-    <div class="relative flex-1">
+    <div class="relative overflow-hidden flex-grow">
+      <!-- Floating Controls -->
+      <div class="absolute z-10 right-4 bottom-8 flex flex-col gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          class="h-10 w-10 rounded-full shadow-lg bg-white border border-gray-200"
+          @click="zoomIn"
+        >
+          <Plus class="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          class="h-10 w-10 rounded-full shadow-lg bg-white border border-gray-200"
+          @click="zoomOut"
+        >
+          <Minus class="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          class="h-10 w-10 rounded-full shadow-lg bg-white border border-gray-200"
+          @click="centerMap"
+        >
+          <Crosshair class="h-4 w-4" />
+        </Button>
+      </div>
       <KakaoMap
-        width="100vw"
-        height="100vh"
-        class="w-full h-full object-cover"
+        :width="'100%'"
+        :height="props.isMobile ? '50vh' : '100vh'"
         :lat="coordinate.lat"
         :lng="coordinate.lng"
+        @onLoadKakaoMap="onLoadKakaoMap"
         :draggable="true"
       >
         <KakaoMapMarker
@@ -140,81 +207,22 @@ const centerMap = () => {
           :lng="coordinate.lng"
         ></KakaoMapMarker>
       </KakaoMap>
-      <!--        <img-->
-      <!--          src="/placeholder.svg?height=800&width=1200&text=Map"-->
-      <!--          alt="지도"-->
-      <!--          class="w-full h-full object-cover"-->
-      <!--        />-->
-
-      <!-- Floating Controls -->
-      <div class="absolute right-4 bottom-4 flex flex-col gap-2">
-        <Button
-          variant="secondary"
-          size="icon"
-          class="h-10 w-10 rounded-full shadow-lg"
-          @click="zoomIn"
-        >
-          <Plus class="h-4 w-4" />
-        </Button>
-        <Button
-          variant="secondary"
-          size="icon"
-          class="h-10 w-10 rounded-full shadow-lg"
-          @click="zoomOut"
-        >
-          <Minus class="h-4 w-4" />
-        </Button>
-        <Button
-          variant="secondary"
-          size="icon"
-          class="h-10 w-10 rounded-full shadow-lg"
-          @click="centerMap"
-        >
-          <Crosshair class="h-4 w-4" />
-        </Button>
-      </div>
     </div>
 
-    <!-- Toggle List Button -->
-    <Button
-      variant="secondary"
-      size="icon"
-      :class="[
-        'absolute top-1/2 -translate-y-1/2 h-10 w-6 rounded-l-full rounded-r-none shadow-lg hidden sm:flex z-10 transition-all duration-300 ease-in-out',
-        isListOpen ? 'right-[400px]' : 'right-0',
-      ]"
-      @click="toggleList"
-      :aria-label="isListOpen ? '장소 목록 닫기' : '장소 목록 열기'"
-    >
-      <ChevronRight v-if="isListOpen" class="h-4 w-4" />
-      <ChevronLeft v-else class="h-4 w-4" />
-    </Button>
-
     <!-- Location List -->
-    <div
-      :class="[
-        'w-full sm:w-[400px] border-t sm:border-l transition-all duration-300 ease-in-out relative',
-        isListOpen
-          ? 'sm:w-[400px] sm:overflow-visible'
-          : 'sm:w-0 sm:overflow-hidden',
-      ]"
-    >
-      <div
-        :class="[
-          'transition-opacity duration-300 ease-in-out',
-          isListOpen ? 'opacity-100' : 'opacity-0',
-        ]"
-      >
-        <ScrollArea class="h-[calc(100%-96px)]">
+    <div class="w-full sm:w-96">
+      <div class="flex flex-col justify-between sm:h-[100vh]">
+        <!-- 장소 목록-->
+        <ScrollArea class="sm:h-[calc(100%-57px)]">
           <div class="p-4 space-y-4">
             <Card
-              v-for="location in currentLocations"
+              v-for="location in paginatedLocations"
               :key="location.id"
               :class="[
                 'cursor-pointer transition-colors',
                 selectedLocation === location.id ? 'bg-muted' : '',
               ]"
-              @click="setSelectedLocation(location.id)"
+              @click="selectedLocation.value = location.id"
             >
               <CardContent class="p-4">
                 <div class="space-y-2">
@@ -246,19 +254,20 @@ const centerMap = () => {
             </Card>
           </div>
         </ScrollArea>
-        <div
-          class="absolute bottom-0 left-0 right-0 border-t p-2 bg-background"
-        >
-          <!--                  <PaginationPrevious @click="setCurrentPage(currentPage - 1)" />-->
-          <!--                  <PaginationNext @click="setCurrentPage(currentPage + 1)" />-->
+
+        <!-- 페이징-->
+        <div class="border-t p-2 bg-background">
           <Pagination
-            v-slot="{ page }"
-            :total="100"
-            :sibling-count="1"
+            v-model:page="page"
+            :total="total"
+            :items-per-page="itemsPerPage"
             show-edges
             :default-page="1"
           >
-            <PaginationList v-slot="{ items }" class="flex items-center gap-1">
+            <PaginationList
+              v-slot="{ items }"
+              class="flex justify-center items-center gap-1"
+            >
               <PaginationFirst />
               <PaginationPrev />
 
@@ -289,6 +298,4 @@ const centerMap = () => {
   </div>
 </template>
 
-<style scoped>
-/* 스타일이 필요하다면 추가하세요 */
-</style>
+<style scoped></style>
