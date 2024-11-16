@@ -23,7 +23,7 @@ const logout = async () => {
 </script>
 
 <template>
-  <Card>
+  <Card class="m-6 max-w-[600px]">
     <CardHeader>
       <CardTitle>프로필</CardTitle>
     </CardHeader>

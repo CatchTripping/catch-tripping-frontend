@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input/index.js'
 </script>
 
 <template>
-  <div class="space-y-4">
+  <div class="space-y-4 m-6 max-w-[600px]">
     <h2 class="text-2xl font-bold">도움말</h2>
     <div class="flex items-center space-x-2 mb-4">
       <Input type="search" placeholder="도움말 검색..." className="max-w-sm" />
