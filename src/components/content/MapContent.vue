@@ -1,10 +1,10 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { KakaoMap, KakaoMapMarker } from 'vue3-kakao-maps'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Card, CardContent } from '@/components/ui/card'
-import { Star, Plus, Minus, Crosshair } from 'lucide-vue-next'
+import { Plus, Minus, Crosshair, Loader2 } from 'lucide-vue-next'
 import {
   Pagination,
   PaginationEllipsis,
@@ -15,6 +15,7 @@ import {
   PaginationNext,
   PaginationPrev,
 } from '@/components/ui/pagination'
+import { useMapStore } from '@/stores/maps.js'
 
 const props = defineProps({
   isMobile: {
@@ -23,95 +24,17 @@ const props = defineProps({
   },
 })
 
-const coordinate = {
-  lat: 37.566826,
-  lng: 126.9786567,
-}
+const maps = useMapStore()
 
-const locations = [
-  {
-    id: 1,
-    name: '삼대죽발 시흥대야점',
-    category: '족발·보쌈',
-    rating: 4.4,
-    reviews: 72,
-    distance: '리뷰 7건',
-    address: '경기 시흥시 비둘기공원5길 6 1층',
-    addressDetail: '(지번) 대야동 532-3',
-    hours: '매일 14:00 ~ 02:00',
-    tel: '031-311-7255',
-  },
-  {
-    id: 2,
-    name: '백년불고기물갈비 대야점',
-    category: '불고기·두루치기',
-    rating: 4.5,
-    reviews: 102,
-    distance: '리뷰 16건',
-    address: '경기 시흥시 비둘기공원5길 15 은행프라자1층 109호',
-    addressDetail: '(지번) 대야동 537',
-    hours: '화~일 11:00 ~ 23:00',
-    tel: '031-435-8431',
-  },
-  {
-    id: 3,
-    name: '수궁가야구찜',
-    category: '해물·해물탕',
-    rating: 4.9,
-    reviews: 72,
-    distance: '리뷰 16건',
-    address: '경기 시흥시 비둘기공원5길 23 108호',
-    addressDetail: '(지번) 대야동 540-1',
-    hours: '매일 11:00 ~ 22:00',
-    tel: '031-313-9500',
-  },
-  {
-    id: 4,
-    name: '지글보고싶다 시흥대야점',
-    category: '족발·보쌈',
-    rating: 5.0,
-    reviews: 32,
-    distance: '리뷰 2건',
-    address: '경기 시흥시 비둘기공원5길 12 2층 204, 205호',
-    addressDetail: '(지번) 대야동 531-2',
-    hours: '매일 17:00 ~ 05:00',
-    tel: '031-317-7239',
-  },
-  {
-    id: 4,
-    name: '지글보고싶다 시흥대야점',
-    category: '족발·보쌈',
-    rating: 5.0,
-    reviews: 32,
-    distance: '리뷰 2건',
-    address: '경기 시흥시 비둘기공원5길 12 2층 204, 205호',
-    addressDetail: '(지번) 대야동 531-2',
-    hours: '매일 17:00 ~ 05:00',
-    tel: '031-317-7239',
-  },
-]
+onMounted(() => {
+  maps.fetchMaps()
+})
 
 // 카카오맵 설정
 const map = ref()
 const onLoadKakaoMap = mapRef => {
   map.value = mapRef
 }
-
-// 현재 위치
-const latitude = ref(null)
-const longitude = ref(null)
-
-// 페이징  설정
-const page = ref(1) // 현재 페이지
-const itemsPerPage = ref(2) // 페이지 당 아이템 개수
-const total = ref(locations.length) // 총 아이템 개수
-
-// page 와 itemsPerPage 에 맞게 locations 배열을 슬라이싱하는 computed
-const paginatedLocations = computed(() => {
-  const start = (page.value - 1) * itemsPerPage.value
-  const end = start + itemsPerPage.value
-  return locations.slice(start, end)
-})
 
 const selectedLocation = ref(null)
 
@@ -138,8 +61,8 @@ const centerMap = () => {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       position => {
-        latitude.value = position.coords.latitude
-        longitude.value = position.coords.longitude
+        maps.latitude = position.coords.latitude
+        maps.longitude = position.coords.longitude
 
         if (map.value) {
           // 지도 중심을 부드럽게 이동시킵니다
@@ -161,6 +84,20 @@ const centerMap = () => {
     alert('Geolocation을 지원하지 않는 브라우저입니다.')
   }
 }
+
+watch(
+  () => maps.page,
+  () => {
+    maps.debouncedFetchMaps()
+  },
+)
+
+watch(
+  () => ({ latitude: maps.latitude, longitude: maps.longitude }),
+  () => {
+    maps.debouncedFetchMaps()
+  },
+)
 </script>
 <template>
   <!-- Main Content -->
@@ -197,56 +134,57 @@ const centerMap = () => {
       <KakaoMap
         :width="'100%'"
         :height="props.isMobile ? '50vh' : '100vh'"
-        :lat="coordinate.lat"
-        :lng="coordinate.lng"
+        :lat="maps.latitude"
+        :lng="maps.longitude"
         @onLoadKakaoMap="onLoadKakaoMap"
         :draggable="true"
       >
         <KakaoMapMarker
-          :lat="coordinate.lat"
-          :lng="coordinate.lng"
+          :lat="maps.latitude"
+          :lng="maps.longitude"
         ></KakaoMapMarker>
       </KakaoMap>
     </div>
 
     <!-- Location List -->
     <div class="w-full sm:w-96">
-      <div class="flex flex-col justify-between sm:h-[100vh]">
+      <div class="flex flex-col justify-between sm:h-[100vh] relative">
+        <Loader2
+          v-if="maps.loading"
+          class="animate-spin absolute top-1/2 left-1/2"
+        />
         <!-- 장소 목록-->
-        <ScrollArea class="sm:h-[calc(100%-57px)]">
+        <ScrollArea v-if="!maps.loading" class="sm:h-[calc(100%-57px)]">
           <div class="p-4 space-y-4">
             <Card
-              v-for="location in paginatedLocations"
-              :key="location.id"
+              v-for="location in maps.attractions"
+              :key="location.contentId"
               :class="[
                 'cursor-pointer transition-colors',
-                selectedLocation === location.id ? 'bg-muted' : '',
+                selectedLocation === location.contentId ? 'bg-muted' : '',
               ]"
-              @click="selectedLocation.value = location.id"
+              @click="selectedLocation.value = location.contentId"
             >
               <CardContent class="p-4">
                 <div class="space-y-2">
                   <div class="flex items-start justify-between">
                     <div>
-                      <h3 class="font-semibold">{{ location.name }}</h3>
+                      <h3 class="font-semibold">{{ location.title }}</h3>
                       <p class="text-sm text-muted-foreground">
-                        {{ location.category }}
+                        {{
+                          location.categoryCodesList[
+                            location.categoryCodesList.length - 1
+                          ].categoryName
+                        }}
                       </p>
-                    </div>
-                    <div class="flex items-center gap-1">
-                      <Star class="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                      <span class="font-semibold">{{ location.rating }}</span>
-                      <span class="text-sm text-muted-foreground"
-                        >({{ location.reviews }})</span
-                      >
                     </div>
                   </div>
                   <div class="text-sm space-y-1">
-                    <p>{{ location.address }}</p>
+                    <p>{{ location.addr1 }}</p>
                     <p class="text-muted-foreground">
-                      {{ location.addressDetail }}
+                      {{ location.addr2 + ' ' + location.zipcode }}
                     </p>
-                    <p>영업시간: {{ location.hours }}</p>
+                    <p>{{ location.contentTypeName }}</p>
                     <p class="text-primary">{{ location.tel }}</p>
                   </div>
                 </div>
@@ -256,11 +194,11 @@ const centerMap = () => {
         </ScrollArea>
 
         <!-- 페이징-->
-        <div class="border-t p-2 bg-background">
+        <div v-if="!maps.loading" class="border-t p-2 bg-background">
           <Pagination
-            v-model:page="page"
-            :total="total"
-            :items-per-page="itemsPerPage"
+            v-model:page="maps.page"
+            :total="maps.totalItems"
+            :items-per-page="maps.pageSize"
             show-edges
             :default-page="1"
           >
@@ -280,7 +218,7 @@ const centerMap = () => {
                 >
                   <Button
                     class="w-10 h-10 p-0"
-                    :variant="item.value === page ? 'default' : 'outline'"
+                    :variant="item.value === maps.page ? 'default' : 'outline'"
                   >
                     {{ item.value }}
                   </Button>
