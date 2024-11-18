@@ -5,6 +5,12 @@ import router from '@/router/index.js'
 import validationState from 'lodash/seq.js'
 import errors from 'lodash/seq.js'
 
+import { useToast } from '@/components/ui/toast/use-toast'
+
+const { toast } = useToast()
+
+import { toast as sonner } from 'vue-sonner'
+
 export const useUserStore = defineStore('user', {
   state: () => ({
     userInfo: null, // 유저 정보
@@ -20,8 +26,10 @@ export const useUserStore = defineStore('user', {
         })
 
         if (response.data.status === 200) {
-          alert('회원가입 성공')
-          router.push('/login')
+          toast({
+            title: '회원가입 성공',
+          })
+          await router.push('/login')
         }
       } catch (error) {
         const errorMessage =
@@ -48,9 +56,9 @@ export const useUserStore = defineStore('user', {
 
         return response.data.data.isAvailable
       } catch (error) {
-        // if (import.meta.env.MODE === 'development') {
-        //   console.error('Username check error:', error);
-        // }
+        sonner.error('Username check error', {
+          description: error,
+        })
         return false
       }
     },
@@ -63,9 +71,9 @@ export const useUserStore = defineStore('user', {
         })
         return response.data.data.isAvailable
       } catch (error) {
-        // if (import.meta.env.MODE === 'development') {
-        //   console.error('Email check error:', error);
-        // }
+        sonner.error('Email check error', {
+          description: error,
+        })
         return false
       }
     },
@@ -86,18 +94,19 @@ export const useUserStore = defineStore('user', {
         if (response.status === 200) {
           const userInfoSuccess = await this.getUserInfo()
           if (userInfoSuccess) {
+            sonner.success(`${this.userInfo.userName} 님, 반갑습니다.`, {
+              description: `${new Date().toLocaleTimeString()}`,
+            })
             return true
           }
-        } else {
-          throw new Error(
-            response.data?.description || '로그인에 실패했습니다.',
-          )
         }
       } catch (error) {
-        alert(
-          error.response?.data?.description ||
+        toast({
+          title:
+            error.response?.data?.description ||
             '로그인 실패. 다시 시도해 주세요.',
-        )
+          variant: 'destructive',
+        })
         this.userInfo = null
         return false
       }
@@ -111,10 +120,12 @@ export const useUserStore = defineStore('user', {
         return true
       } catch (error) {
         this.userInfo = null
-        alert(
-          error.response?.data?.description ||
+        toast({
+          title:
+            error.response?.data?.description ||
             '사용자 정보를 불러오는데 실패했습니다.',
-        )
+          variant: 'destructive',
+        })
         return false
       }
     },
@@ -124,7 +135,12 @@ export const useUserStore = defineStore('user', {
       try {
         await api.post('/logout', {})
         this.userInfo = null
-      } catch (error) {}
+        sonner.success('로그아웃 성공')
+      } catch (error) {
+        sonner.error('로그아웃 실패', {
+          description: error,
+        })
+      }
     },
 
     // 로컬 스토리지나 쿠키에서 세션 정보 복원
@@ -138,6 +154,9 @@ export const useUserStore = defineStore('user', {
         this.userInfo = null
         return false
       } catch (error) {
+        sonner.error('세션 만료', {
+          description: error,
+        })
         this.userInfo = null
         return false
       }
@@ -145,9 +164,6 @@ export const useUserStore = defineStore('user', {
   },
   getters: {
     isLoggedIn(state) {
-      if (import.meta.env.MODE === 'development') {
-        // console.log('isLoggedIn check:', !!state.userInfo)
-      }
       return !!state.userInfo // 유저 정보가 있으면 로그인 상태
     },
   },

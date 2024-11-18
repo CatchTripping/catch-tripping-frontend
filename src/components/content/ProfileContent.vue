@@ -14,11 +14,10 @@ import router from '@/router/index.js'
 const userStore = useUserStore()
 const userInfo = userStore.userInfo // userInfo 상태 가져오기
 
-console.log(userInfo)
 // 로그아웃 함수
 const logout = async () => {
   await userStore.logout()
-  router.push('/login')
+  await router.push('/login')
 }
 </script>
 
@@ -45,7 +44,6 @@ const logout = async () => {
       </div>
       <div class="space-y-4">
         <Button class="w-full">프로필 편집</Button>
-        <Button variant="outline" class="w-full">설정</Button>
         <Button variant="destructive" class="w-full" @click="logout">
           <LogOut className="mr-2 h-4 w-4" />
           로그아웃
