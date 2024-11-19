@@ -7,7 +7,9 @@ import {
   HelpCircle,
   Home,
   Map,
+  MapPin,
   MapPinned,
+  ImagePlus,
   Settings,
 } from 'lucide-vue-next'
 
@@ -21,6 +23,7 @@ import RegionContent from '@/components/content/RegionContent.vue'
 import CreatePostDialog from '@/components/content/CreatePostDialog.vue'
 import { useUserStore } from '@/stores/user'
 import { useDialogStore } from '@/stores/dialog'
+import AttractionContent from '@/components/content/AttractionContent.vue'
 
 // 유저 정보 및 로그아웃 함수 정의
 const userStore = useUserStore()
@@ -32,7 +35,6 @@ const dialogStore = useDialogStore()
 const isCollapsed = ref(false)
 const activeMenu = ref('home')
 const isMobile = ref(false)
-const isCreatePostDialogOpen = ref(false)
 
 const renderContent = computed(() => {
   switch (activeMenu.value) {
@@ -48,7 +50,8 @@ const renderContent = computed(() => {
       return SettingsContent
     case 'help':
       return HelpContent
-
+    case 'attraction':
+      return AttractionContent
     default:
       return HomeContent
   }
@@ -60,15 +63,6 @@ const setIsCollapsed = collapsed => {
 
 const setActiveMenu = menu => {
   activeMenu.value = menu
-}
-
-// 다이얼로그 열기/닫기 함수
-const openCreatePostDialog = () => {
-  isCreatePostDialogOpen.value = true
-}
-
-const closeCreatePostDialog = () => {
-  isCreatePostDialogOpen.value = false
 }
 
 // 윈도우 크기 변경에 따라 사이드바 크기 조정
@@ -138,9 +132,19 @@ onBeforeUnmount(() => {
             <Button
               :variant="activeMenu === 'region' ? 'secondary' : 'ghost'"
               class="w-full justify-start"
+              @click="setActiveMenu('attraction')"
+            >
+              <MapPin class="h-4 w-4" />
+              <span v-if="!isCollapsed" class="ml-2">자세히</span>
+            </Button>
+          </li>
+          <li>
+            <Button
+              :variant="activeMenu === 'region' ? 'secondary' : 'ghost'"
+              class="w-full justify-start"
               @click="dialogStore.openCreatePostDialog"
             >
-              <MapPinned class="h-4 w-4" />
+              <ImagePlus class="h-4 w-4" />
               <span v-if="!isCollapsed" class="ml-2">만들기</span>
             </Button>
           </li>

@@ -4,6 +4,7 @@ import {
   ImagePlus,
   ArrowLeft,
   ChevronLeft,
+  X,
   ChevronRight,
   MapPin,
 } from 'lucide-vue-next'
@@ -87,6 +88,13 @@ const handlePost = () => {
     <div class="bg-white rounded-lg shadow-lg w-full max-w-3xl">
       <!-- Header -->
       <header class="p-4 border-b flex justify-between items-center">
+        <button
+          v-if="step === 1"
+          @click="dialogStore.closeCreatePostDialog()"
+          class="mr-auto"
+        >
+          <X class="h-5 w-5 text-gray-500" />
+        </button>
         <button v-if="step === 2" @click="handleBack" class="mr-auto">
           <ArrowLeft class="h-5 w-5 text-gray-500" />
         </button>

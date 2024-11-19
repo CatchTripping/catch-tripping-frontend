@@ -12,6 +12,8 @@ export const useMapStore = defineStore('maps', {
     attractions: [],
     loading: false,
     error: null,
+    visibleIndex: -1,
+    visibleInfo: -1,
   }),
 
   getters: {},

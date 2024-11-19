@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/pagination'
 import { useMapStore } from '@/stores/maps.js'
 import { cn } from '@/lib/utils.js'
+import { toast as sonner } from 'vue-sonner'
 
 const props = defineProps({
   isMobile: {
@@ -41,11 +42,6 @@ const onLoadKakaoMap = mapRef => {
   map.value = mapRef
   map.value.setLevel(mapLevel.value)
 }
-
-const selectedLocation = ref(null)
-
-const visibleIndex = ref(-1)
-const visibleInfo = ref(-1)
 
 const zoomIn = () => {
   // 현재 지도의 레벨을 얻어옵니다
@@ -85,21 +81,14 @@ const centerMap = () => {
         }
       },
       error => {
-        console.error('위치를 가져오는데 실패했습니다.', error)
-        alert('위치를 가져오는데 실패했습니다.')
+        sonner.warning('위치를 가져오는데 실패했습니다.', {
+          description: error,
+        })
       },
     )
   } else {
-    alert('Geolocation을 지원하지 않는 브라우저입니다.')
-  }
-}
-
-const panToCenterMap = () => {
-  if (map.value) {
-    // 지도 중심을 부드럽게 이동시킵니다
-    // 만약 이동할 거리가 지도 화면보다 크면 부드러운 효과 없이 이동합니다
-    map.value.setLevel(mapLevel.value)
-    map.value.panTo(new kakao.maps.LatLng(maps.latitude, maps.longitude))
+    sonner.warning('위치를 지원하지 않는 브라우저입니다.')
+    alert('')
   }
 }
 
@@ -116,7 +105,7 @@ const setBounds = () => {
 }
 
 const onClickKakaoMapMarker = index => {
-  visibleIndex.value = index
+  maps.visibleIndex = index
   map.value.setLevel(mapLevel.value)
   map.value.setCenter(
     new kakao.maps.LatLng(
@@ -127,7 +116,18 @@ const onClickKakaoMapMarker = index => {
 }
 
 const onClickKakaoMapAnchor = index => {
-  visibleIndex.value = index
+  maps.visibleIndex = index
+  map.value.setLevel(mapLevel.value)
+  map.value.setCenter(
+    new kakao.maps.LatLng(
+      maps.attractions[index].mapy,
+      maps.attractions[index].mapx,
+    ),
+  )
+}
+
+const onClickCard = index => {
+  maps.visibleIndex = index
   map.value.setLevel(mapLevel.value)
   map.value.setCenter(
     new kakao.maps.LatLng(
@@ -138,11 +138,11 @@ const onClickKakaoMapAnchor = index => {
 }
 
 const mouseOverKakaoMapMarker = index => {
-  visibleInfo.value = index
+  maps.visibleInfo = index
 }
 
 const mouseOutKakaoMapMarker = () => {
-  visibleInfo.value = -1
+  maps.visibleInfo = -1
 }
 
 watch(
@@ -162,6 +162,8 @@ watch(
 watch(
   () => maps.page,
   () => {
+    maps.visibleIndex = -1
+    maps.visibleInfo = -1
     maps.debouncedFetchMaps()
   },
 )
@@ -218,7 +220,7 @@ watch(
           :key="item.contentId"
         >
           <KakaoMapMarker
-            v-if="index === visibleIndex"
+            v-if="index === maps.visibleIndex"
             :lat="item.mapy"
             :lng="item.mapx"
             :clickable="true"
@@ -248,7 +250,7 @@ watch(
             :clickable="true"
             :infoWindow="{
               content: item.title,
-              visible: visibleInfo === index,
+              visible: maps.visibleInfo === index,
             }"
             @onClickKakaoMapMarker="onClickKakaoMapMarker(index)"
             @mouseOverKakaoMapMarker="mouseOverKakaoMapMarker(index)"
@@ -262,7 +264,10 @@ watch(
             <template v-slot:infoWindow>
               <div
                 :class="
-                  cn(visibleInfo === index ? 'visible' : 'invisible', 'p-2')
+                  cn(
+                    maps.visibleInfo === index ? 'visible' : 'invisible',
+                    'p-2',
+                  )
                 "
               >
                 {{
@@ -282,6 +287,7 @@ watch(
       <div class="flex flex-col justify-center sm:h-[100vh] Z">
         <Loader2
           size="100"
+          color="#172341"
           v-if="maps.loading"
           class="animate-spin self-center"
         />
@@ -292,16 +298,15 @@ watch(
               v-for="(location, index) in maps.attractions"
               :key="location.contentId"
               :class="[
-                'cursor-pointer transition-colors',
-                selectedLocation === location.contentId ? 'bg-muted' : '',
+                'transition-colors',
+                maps.visibleIndex === index ? 'bg-muted' : '',
               ]"
-              @click="selectedLocation = location.contentId"
             >
               <CardContent class="p-4">
                 <div class="space-y-2">
                   <div class="flex items-start justify-between">
                     <div>
-                      <h3 class="font-semibold">
+                      <div class="flex items-center gap-1">
                         <Button
                           variant="link"
                           class="inline gap-0 p-0 text-blue-500 font-bold"
@@ -309,8 +314,13 @@ watch(
                         >
                           {{ String.fromCharCode(65 + index) }}
                         </Button>
-                        {{ location.title }}
-                      </h3>
+                        <h3
+                          class="font-semibold cursor-pointer hover:underline"
+                          @click="onClickCard(index)"
+                        >
+                          {{ location.title }}
+                        </h3>
+                      </div>
                       <p class="text-sm text-muted-foreground">
                         {{
                           location.categoryCodesList[
@@ -325,8 +335,23 @@ watch(
                     <p class="text-muted-foreground">
                       {{ location.addr2 + ' ' + location.zipcode }}
                     </p>
-                    <p>{{ location.contentTypeName }}</p>
-                    <p class="text-primary">{{ location.tel }}</p>
+                    <!--                    <p>{{ location.contentTypeName }}</p>-->
+                    <div class="flex items-center gap-1 h-4">
+                      <Button
+                        variant="link"
+                        class="inline gap-0 p-0 text-blue-500 text-xs"
+                      >
+                        <!--                        TODO 여기서 상세설명 페이지로 가게끔 하자. 그 구현은 나중에-->
+                        상세보기
+                      </Button>
+                      <p
+                        v-if="location.tel !== ''"
+                        class="text-muted-foreground"
+                      >
+                        ·
+                      </p>
+                      <p class="text-xs text-blue-500">{{ location.tel }}</p>
+                    </div>
                   </div>
                 </div>
               </CardContent>
