@@ -39,8 +39,8 @@ export const useMapStore = defineStore('maps', {
     },
 
     // 디바운싱 처리된 fetchMaps 호출
-    debouncedFetchMaps: debounce(function () {
-      this.fetchMaps()
+    debouncedFetchMaps: debounce(async function () {
+      await this.fetchMaps()
     }, 500),
   },
 

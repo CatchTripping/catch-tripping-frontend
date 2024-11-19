@@ -1,10 +1,10 @@
 <script setup>
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { KakaoMap, KakaoMapMarker } from 'vue3-kakao-maps'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Card, CardContent } from '@/components/ui/card'
-import { Plus, Minus, Crosshair, Loader2 } from 'lucide-vue-next'
+import { Crosshair, Loader2, Minus, Plus } from 'lucide-vue-next'
 import {
   Pagination,
   PaginationEllipsis,
@@ -16,6 +16,7 @@ import {
   PaginationPrev,
 } from '@/components/ui/pagination'
 import { useMapStore } from '@/stores/maps.js'
+import { cn } from '@/lib/utils.js'
 
 const props = defineProps({
   isMobile: {
@@ -30,13 +31,21 @@ onMounted(() => {
   maps.fetchMaps()
 })
 
+const mapLevel = computed(() => {
+  return props.isMobile ? 6 : 4
+})
+
 // 카카오맵 설정
 const map = ref()
 const onLoadKakaoMap = mapRef => {
   map.value = mapRef
+  map.value.setLevel(mapLevel.value)
 }
 
 const selectedLocation = ref(null)
+
+const visibleIndex = ref(-1)
+const visibleInfo = ref(-1)
 
 const zoomIn = () => {
   // 현재 지도의 레벨을 얻어옵니다
@@ -84,6 +93,71 @@ const centerMap = () => {
     alert('Geolocation을 지원하지 않는 브라우저입니다.')
   }
 }
+
+const panToCenterMap = () => {
+  if (map.value) {
+    // 지도 중심을 부드럽게 이동시킵니다
+    // 만약 이동할 거리가 지도 화면보다 크면 부드러운 효과 없이 이동합니다
+    map.value.setLevel(mapLevel.value)
+    map.value.panTo(new kakao.maps.LatLng(maps.latitude, maps.longitude))
+  }
+}
+
+const setBounds = () => {
+  // 지도를 재설정할 범위정보를 가지고 있을 LatLngBounds 객체를 생성합니다
+  const bounds = new kakao.maps.LatLngBounds()
+  let point
+  maps.attractions.forEach(item => {
+    point = new kakao.maps.LatLng(item.mapy, item.mapx)
+    // LatLngBounds 객체에 좌표를 추가합니다
+    bounds.extend(point)
+  })
+  map.value.setBounds(bounds)
+}
+
+const onClickKakaoMapMarker = index => {
+  visibleIndex.value = index
+  map.value.setLevel(mapLevel.value)
+  map.value.setCenter(
+    new kakao.maps.LatLng(
+      maps.attractions[index].mapy,
+      maps.attractions[index].mapx,
+    ),
+  )
+}
+
+const onClickKakaoMapAnchor = index => {
+  visibleIndex.value = index
+  map.value.setLevel(mapLevel.value)
+  map.value.setCenter(
+    new kakao.maps.LatLng(
+      maps.attractions[index].mapy,
+      maps.attractions[index].mapx,
+    ),
+  )
+}
+
+const mouseOverKakaoMapMarker = index => {
+  visibleInfo.value = index
+}
+
+const mouseOutKakaoMapMarker = () => {
+  visibleInfo.value = -1
+}
+
+watch(
+  () => props.isMobile,
+  () => {
+    setBounds()
+  },
+)
+
+watch(
+  () => maps.attractions,
+  () => {
+    setBounds()
+  },
+)
 
 watch(
   () => maps.page,
@@ -139,37 +213,104 @@ watch(
         @onLoadKakaoMap="onLoadKakaoMap"
         :draggable="true"
       >
-        <KakaoMapMarker
-          :lat="maps.latitude"
-          :lng="maps.longitude"
-        ></KakaoMapMarker>
+        <template
+          v-for="(item, index) in maps.attractions"
+          :key="item.contentId"
+        >
+          <KakaoMapMarker
+            v-if="index === visibleIndex"
+            :lat="item.mapy"
+            :lng="item.mapx"
+            :clickable="true"
+            @onClickKakaoMapMarker="onClickKakaoMapMarker(index)"
+            @mouseOverKakaoMapMarker="mouseOverKakaoMapMarker(index)"
+            @mouseOutKakaoMapMarker="mouseOutKakaoMapMarker"
+            :image="{
+              imageSrc: '/src/assets/map/2/' + (index + 1) + '.png',
+              imageWidth: 39,
+              imageHeight: 57,
+            }"
+          >
+            <template v-slot:infoWindow>
+              <div :class="cn('visible p-2')">
+                {{
+                  item.title.length > 8
+                    ? item.title.slice(0, 8) + '...'
+                    : item.title
+                }}
+              </div>
+            </template>
+          </KakaoMapMarker>
+          <KakaoMapMarker
+            v-else
+            :lat="item.mapy"
+            :lng="item.mapx"
+            :clickable="true"
+            :infoWindow="{
+              content: item.title,
+              visible: visibleInfo === index,
+            }"
+            @onClickKakaoMapMarker="onClickKakaoMapMarker(index)"
+            @mouseOverKakaoMapMarker="mouseOverKakaoMapMarker(index)"
+            @mouseOutKakaoMapMarker="mouseOutKakaoMapMarker"
+            :image="{
+              imageSrc: '/src/assets/map/1/' + (index + 1) + '.png',
+              imageWidth: 29,
+              imageHeight: 50,
+            }"
+          >
+            <template v-slot:infoWindow>
+              <div
+                :class="
+                  cn(visibleInfo === index ? 'visible' : 'invisible', 'p-2')
+                "
+              >
+                {{
+                  item.title.length > 8
+                    ? item.title.slice(0, 8) + '...'
+                    : item.title
+                }}
+              </div>
+            </template>
+          </KakaoMapMarker>
+        </template>
       </KakaoMap>
     </div>
 
     <!-- Location List -->
     <div class="w-full sm:w-96">
-      <div class="flex flex-col justify-between sm:h-[100vh] relative">
+      <div class="flex flex-col justify-center sm:h-[100vh] Z">
         <Loader2
+          size="100"
           v-if="maps.loading"
-          class="animate-spin absolute top-1/2 left-1/2"
+          class="animate-spin self-center"
         />
         <!-- 장소 목록-->
         <ScrollArea v-if="!maps.loading" class="sm:h-[calc(100%-57px)]">
           <div class="p-4 space-y-4">
             <Card
-              v-for="location in maps.attractions"
+              v-for="(location, index) in maps.attractions"
               :key="location.contentId"
               :class="[
                 'cursor-pointer transition-colors',
                 selectedLocation === location.contentId ? 'bg-muted' : '',
               ]"
-              @click="selectedLocation.value = location.contentId"
+              @click="selectedLocation = location.contentId"
             >
               <CardContent class="p-4">
                 <div class="space-y-2">
                   <div class="flex items-start justify-between">
                     <div>
-                      <h3 class="font-semibold">{{ location.title }}</h3>
+                      <h3 class="font-semibold">
+                        <Button
+                          variant="link"
+                          class="inline gap-0 p-0 text-blue-500 font-bold"
+                          @click="onClickKakaoMapAnchor(index)"
+                        >
+                          {{ String.fromCharCode(65 + index) }}
+                        </Button>
+                        {{ location.title }}
+                      </h3>
                       <p class="text-sm text-muted-foreground">
                         {{
                           location.categoryCodesList[
