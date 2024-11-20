@@ -359,7 +359,7 @@ onMounted(() => {
               />
               <ImageOff
                 v-else
-                class="w-40 h-24 object-cover  p-6"
+                class="w-40 h-24 object-cover p-6"
                 color="gray"
               />
               <div class="flex-1">
@@ -377,7 +377,7 @@ onMounted(() => {
                 v-for="(place, index) in course.destinations"
                 :key="index"
                 variant="outline"
-              >{{ place }}
+                >{{ place }}
               </Badge>
             </div>
           </div>
