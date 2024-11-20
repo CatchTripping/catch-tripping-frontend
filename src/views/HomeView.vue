@@ -130,7 +130,7 @@ onBeforeUnmount(() => {
           </li>
           <li>
             <Button
-              :variant="activeMenu === 'region' ? 'secondary' : 'ghost'"
+              :variant="activeMenu === 'attraction' ? 'secondary' : 'ghost'"
               class="w-full justify-start"
               @click="setActiveMenu('attraction')"
             >
@@ -140,9 +140,14 @@ onBeforeUnmount(() => {
           </li>
           <li>
             <Button
-              :variant="activeMenu === 'region' ? 'secondary' : 'ghost'"
+              :variant="activeMenu === 'make' ? 'secondary' : 'ghost'"
               class="w-full justify-start"
-              @click="dialogStore.openCreatePostDialog"
+              @click="
+                () => {
+                  setActiveMenu('make')
+                  dialogStore.openCreatePostDialog()
+                }
+              "
             >
               <ImagePlus class="h-4 w-4" />
               <span v-if="!isCollapsed" class="ml-2">만들기</span>
@@ -150,7 +155,7 @@ onBeforeUnmount(() => {
           </li>
           <li>
             <Button
-              :variant="activeMenu === 'stats' ? 'secondary' : 'ghost'"
+              :variant="activeMenu === 'settings' ? 'secondary' : 'ghost'"
               class="w-full justify-start"
               @click="setActiveMenu('settings')"
             >
@@ -160,7 +165,7 @@ onBeforeUnmount(() => {
           </li>
           <li>
             <Button
-              :variant="activeMenu === 'stats' ? 'secondary' : 'ghost'"
+              :variant="activeMenu === 'help' ? 'secondary' : 'ghost'"
               class="w-full justify-start"
               @click="setActiveMenu('help')"
             >
