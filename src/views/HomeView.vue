@@ -8,6 +8,7 @@ import {
   Home,
   Map,
   MapPinned,
+  Footprints,
   ImagePlus,
   Settings,
 } from 'lucide-vue-next'
@@ -22,6 +23,7 @@ import RegionContent from '@/components/content/RegionContent.vue'
 import CreatePostDialog from '@/components/content/CreatePostDialog.vue'
 import { useUserStore } from '@/stores/user'
 import { useDialogStore } from '@/stores/dialog'
+import CourseContent from '@/components/content/CourseContent.vue'
 
 // 유저 정보 및 로그아웃 함수 정의
 const userStore = useUserStore()
@@ -44,6 +46,8 @@ const renderContent = computed(() => {
       return RegionContent
     case 'profile':
       return ProfileContent
+    case 'course':
+      return CourseContent
     case 'settings':
       return SettingsContent
     case 'help':
@@ -122,6 +126,16 @@ onBeforeUnmount(() => {
             >
               <MapPinned class="h-4 w-4" />
               <span v-if="!isCollapsed" class="ml-2">지역</span>
+            </Button>
+          </li>
+          <li>
+            <Button
+              :variant="activeMenu === 'course' ? 'secondary' : 'ghost'"
+              class="w-full justify-start"
+              @click="setActiveMenu('course')"
+            >
+              <Footprints class="h-4 w-4" />
+              <span v-if="!isCollapsed" class="ml-2">코스</span>
             </Button>
           </li>
           <li>
