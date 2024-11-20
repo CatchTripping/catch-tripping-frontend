@@ -18,6 +18,7 @@ import {
 import { useMapStore } from '@/stores/maps.js'
 import { cn } from '@/lib/utils.js'
 import { toast as sonner } from 'vue-sonner'
+import AttractionDialog from '@/components/content/AttractionDialog.vue'
 
 const props = defineProps({
   isMobile: {
@@ -302,7 +303,7 @@ watch(
                 maps.visibleIndex === index ? 'bg-muted' : '',
               ]"
             >
-              <CardContent class="p-4">
+              <CardContent class="pb-4 pt-2 px-4">
                 <div class="space-y-2">
                   <div class="flex items-start justify-between">
                     <div>
@@ -337,13 +338,20 @@ watch(
                     </p>
                     <!--                    <p>{{ location.contentTypeName }}</p>-->
                     <div class="flex items-center gap-1 h-4">
-                      <Button
-                        variant="link"
-                        class="inline gap-0 p-0 text-blue-500 text-xs"
+                      <AttractionDialog
+                        :content-id="location.contentId"
+                        :images="[
+                          { src: location.firstImage, alt: '', caption: '' },
+                        ]"
+                        :title="location.title"
                       >
-                        <!--                        TODO 여기서 상세설명 페이지로 가게끔 하자. 그 구현은 나중에-->
-                        상세보기
-                      </Button>
+                        <Button
+                          variant="link"
+                          class="inline gap-0 p-0 text-blue-500 text-xs"
+                        >
+                          상세보기
+                        </Button>
+                      </AttractionDialog>
                       <p
                         v-if="location.tel !== ''"
                         class="text-muted-foreground"

@@ -7,7 +7,6 @@ import {
   HelpCircle,
   Home,
   Map,
-  MapPin,
   MapPinned,
   ImagePlus,
   Settings,
@@ -23,7 +22,6 @@ import RegionContent from '@/components/content/RegionContent.vue'
 import CreatePostDialog from '@/components/content/CreatePostDialog.vue'
 import { useUserStore } from '@/stores/user'
 import { useDialogStore } from '@/stores/dialog'
-import AttractionContent from '@/components/content/AttractionContent.vue'
 
 // 유저 정보 및 로그아웃 함수 정의
 const userStore = useUserStore()
@@ -50,8 +48,6 @@ const renderContent = computed(() => {
       return SettingsContent
     case 'help':
       return HelpContent
-    case 'attraction':
-      return AttractionContent
     default:
       return HomeContent
   }
@@ -126,16 +122,6 @@ onBeforeUnmount(() => {
             >
               <MapPinned class="h-4 w-4" />
               <span v-if="!isCollapsed" class="ml-2">지역</span>
-            </Button>
-          </li>
-          <li>
-            <Button
-              :variant="activeMenu === 'attraction' ? 'secondary' : 'ghost'"
-              class="w-full justify-start"
-              @click="setActiveMenu('attraction')"
-            >
-              <MapPin class="h-4 w-4" />
-              <span v-if="!isCollapsed" class="ml-2">자세히</span>
             </Button>
           </li>
           <li>
