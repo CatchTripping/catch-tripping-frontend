@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/pagination'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Loader2, MoreVertical } from 'lucide-vue-next'
+import { ImageOff, Loader2, MoreVertical } from 'lucide-vue-next'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { fetchCoursesList } from '@/api/coursesService.js'
 // import { debounce } from 'lodash'
@@ -350,24 +350,35 @@ onMounted(() => {
             :key="course.contentId"
             class="border rounded-lg p-4"
           >
-            <div class="flex items-start justify-between">
+            <div class="flex items-start justify-between gap-2">
+              <img
+                v-if="course.firstImage"
+                :src="course.firstImage"
+                :alt="course.title"
+                class="w-40 h-24 object-cover"
+              />
+              <ImageOff
+                v-else
+                class="w-40 h-24 object-cover  p-6"
+                color="gray"
+              />
               <div class="flex-1">
                 <h3 class="text-lg font-semibold mb-2">{{ course.title }}</h3>
                 <p class="text-sm text-gray-600 mb-2">
                   {{ course.sigunguName ? course.sigunguName : '' }}
                 </p>
-                <div class="flex gap-2 flex-wrap">
-                  <Badge
-                    v-for="(place, index) in course.destinations"
-                    :key="index"
-                    variant="outline"
-                    >{{ place }}
-                  </Badge>
-                </div>
               </div>
               <Button variant="ghost" size="icon">
                 <MoreVertical class="h-4 w-4" />
               </Button>
+            </div>
+            <div class="flex gap-2 flex-wrap mt-2">
+              <Badge
+                v-for="(place, index) in course.destinations"
+                :key="index"
+                variant="outline"
+              >{{ place }}
+              </Badge>
             </div>
           </div>
         </div>
