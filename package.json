@@ -20,6 +20,7 @@
     "js-cookie": "^3.0.5",
     "lodash": "^4.17.21",
     "lucide-vue-next": "^0.454.0",
+    "motion": "^11.11.17",
     "pinia": "^2.2.4",
     "radix-vue": "^1.9.8",
     "tailwind-merge": "^2.5.4",
