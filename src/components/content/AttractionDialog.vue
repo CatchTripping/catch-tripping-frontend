@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { ref, watch } from 'vue'
 import {
   Carousel,
   CarouselContent,
@@ -27,29 +27,6 @@ const props = defineProps({
   title: String,
 })
 
-// const images = [
-//   {
-//     src: 'http://tong.visitkorea.or.kr/cms/resource/17/2841017_image2_1.jpg',
-//     alt: '경기도_용인시_농우본수원갈비_차림상',
-//     caption: '농우본수원갈비 차림상',
-//   },
-//   {
-//     src: 'http://tong.visitkorea.or.kr/cms/resource/15/2841015_image2_1.jpg',
-//     alt: '경기도_용인시_농우본수원갈비_실내',
-//     caption: '농우본수원갈비 실내',
-//   },
-//   {
-//     src: 'http://tong.visitkorea.or.kr/cms/resource/14/2841014_image2_1.jpg',
-//     alt: '경기도_용인시_농우본수원갈비_룸',
-//     caption: '농우본수원갈비 룸',
-//   },
-//   {
-//     src: 'http://tong.visitkorea.or.kr/cms/resource/13/2841013_image2_1.jpg',
-//     alt: '경기도_용인시_농우본수원갈비_대기장소',
-//     caption: '농우본수원갈비 대기장소',
-//   },
-// ]
-
 const overview = ref(null)
 const homepage = ref(null)
 
@@ -59,24 +36,28 @@ const carouselApi = ref()
 const loading = ref(false)
 const error = ref(null)
 
-onMounted(async () => {
-  loading.value = true
-  error.value = null
-  try {
-    const detail = await fetchAttractionDetails(props.contentId)
-    overview.value = detail.overview
-    homepage.value = detail.homepage
-  } catch (err) {
-    console.error(err)
-    error.value = err
-  } finally {
-    loading.value = false
+const isDialogOpen = ref(false)
+
+watch(isDialogOpen, async value => {
+  if (value && overview.value === null) {
+    loading.value = true
+    error.value = null
+    try {
+      const detail = await fetchAttractionDetails(props.contentId)
+      overview.value = detail.overview
+      homepage.value = detail.homepage
+    } catch (err) {
+      console.error(err)
+      error.value = err
+    } finally {
+      loading.value = false
+    }
   }
 })
 </script>
 
 <template>
-  <Dialog>
+  <Dialog v-model:open="isDialogOpen">
     <DialogTrigger as-child>
       <slot></slot>
     </DialogTrigger>
@@ -146,9 +127,7 @@ onMounted(async () => {
           </Carousel>
           <p class="text-lg font-semibold mt-6">상세정보</p>
           <Separator class="mt-2" label="" />
-          <p class="mt-2">
-            {{ overview }}
-          </p>
+          <p class="mt-2" v-html="overview" />
           <Separator class="mt-6" label="" />
           <ul class="list-disc ml-6 mt-4">
             <li>
