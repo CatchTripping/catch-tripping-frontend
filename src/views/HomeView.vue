@@ -1,4 +1,3 @@
-<!--v23-->
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { Button } from '@/components/ui/button'
@@ -9,6 +8,7 @@ import {
   Map,
   MapPinned,
   Footprints,
+  BotMessageSquare,
   ImagePlus,
   Settings,
 } from 'lucide-vue-next'
@@ -24,6 +24,7 @@ import CreatePostDialog from '@/components/content/CreatePostDialog.vue'
 import { useUserStore } from '@/stores/user'
 import { useDialogStore } from '@/stores/dialog'
 import CourseContent from '@/components/content/CourseContent.vue'
+import AITravelContent from '@/components/content/AITravelContent.vue'
 
 // 유저 정보 및 로그아웃 함수 정의
 const userStore = useUserStore()
@@ -48,6 +49,8 @@ const renderContent = computed(() => {
       return ProfileContent
     case 'course':
       return CourseContent
+    case 'ai':
+      return AITravelContent
     case 'settings':
       return SettingsContent
     case 'help':
@@ -136,6 +139,16 @@ onBeforeUnmount(() => {
             >
               <Footprints class="h-4 w-4" />
               <span v-if="!isCollapsed" class="ml-2">코스</span>
+            </Button>
+          </li>
+          <li>
+            <Button
+              :variant="activeMenu === 'ai' ? 'secondary' : 'ghost'"
+              class="w-full justify-start"
+              @click="setActiveMenu('ai')"
+            >
+              <BotMessageSquare class="h-4 w-4" />
+              <span v-if="!isCollapsed" class="ml-2">AI 여행</span>
             </Button>
           </li>
           <li>

@@ -233,10 +233,10 @@ onBeforeUnmount(() => {
               <Card>
                 <CardContent class="p-0">
                   <img
-                    v-if="location.subDetailImg"
-                    :src="location.subDetailImg"
-                    :alt="location.subDetailAlt"
-                    class="w-full h-48 object-cover rounded-t-lg"
+                    v-if="location.images.length >= 1"
+                    :src="location.images[0].originimgurl"
+                    :alt="location.images[0].imgname"
+                    class="w-full object-cover rounded-t-lg"
                   />
                   <ImageOff
                     v-else
@@ -257,7 +257,7 @@ onBeforeUnmount(() => {
                       <img
                         v-for="(image, i) in location.images"
                         :key="i"
-                        :src="image"
+                        :src="image.smallimageurl"
                         :alt="`${location.name} ${i + 1}`"
                         width="150"
                         height="150"

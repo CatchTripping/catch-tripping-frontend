@@ -180,7 +180,7 @@ watch(
     <!-- Map and Location List-->
     <div class="grid lg:grid-cols-[2fr_1fr] grid-cols-1fr gap-2">
       <!-- Map -->
-      <Card class="w-full h-min">
+      <Card class="w-full flex justify-center">
         <component
           :is="hotPlaces.renderMap"
           :class="
