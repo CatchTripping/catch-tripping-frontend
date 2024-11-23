@@ -39,6 +39,9 @@ const RegionContent = defineAsyncComponent(
 const CreatePostDialog = defineAsyncComponent(
   () => import('@/components/content/CreatePostDialog.vue'),
 )
+const DetailPostDialog = defineAsyncComponent(
+  () => import('@/components/content/DetailPostDialog.vue'),
+)
 const CourseContent = defineAsyncComponent(
   () => import('@/components/content/CourseContent.vue'),
 )
@@ -273,7 +276,7 @@ onBeforeUnmount(() => {
 
       <!-- 다이얼로그 컴포넌트 -->
       <CreatePostDialog />
-
+      <DetailPostDialog />
       <!-- Bottom Navigation for mobile -->
       <BottomNavigation
         v-if="isMobile"
