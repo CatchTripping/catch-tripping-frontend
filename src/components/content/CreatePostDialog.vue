@@ -7,6 +7,7 @@ import {
   X,
   ChevronRight,
   MapPin,
+  Loader2
 } from 'lucide-vue-next'
 import { useUserStore } from '@/stores/user.js'
 import { useDialogStore } from '@/stores/dialog'
@@ -82,60 +83,52 @@ const handleNext = () => {
 }
 
 const handlePost = async () => {
-  try {
-    // 로딩 상태 관리
-    isLoading.value = true
+  if (isLoading.value) return; // 이미 로딩 중이면 실행 방지
 
-    // 1. 각 이미지에 대해 S3 프리사인드 URL 요청
+  try {
+    isLoading.value = true; // 로딩 시작
+
+    // 이미지 업로드 로직
     const uploadPromises = images.value.map(async (file) => {
-      // 백엔드에 프리사인드 URL 요청
       const response = await api.get('/api/s3/presigned-url', {
         params: {
           filename: file.name,
           method: 'PUT',
           type: 'board',
         },
-      })
+      });
 
-      const { url, key } = response.data
+      const { url, key } = response.data;
 
-      // 2. 프리사인드 URL로 이미지 업로드
       await api.put(url, file, {
         headers: {
           'Content-Type': file.type,
         },
-      })
+      });
 
-      // 3. 업로드된 이미지의 키 반환
-      return key
-    })
-    // 모든 이미지 업로드 완료 및 이미지 키 획득
+      return key;
+    });
+
     const imageKeys = await Promise.all(uploadPromises);
 
-    // 4. 게시물 생성 요청
+    // 게시물 생성 요청
     const postData = {
       content: caption.value,
       imageKeys: imageKeys,
-    }
+    };
 
-    await api.post('/api/board', postData)
+    await api.post('/api/board', postData);
 
     // 성공 시 초기화 및 다이얼로그 닫기
-    images.value = []
-    imagePreviews.value = []
-    caption.value = ''
-    location.value = ''
-    currentImageIndex.value = 0
-    step.value = 1
-    dialogStore.closeCreatePostDialog()
+    resetPostDialog();
+    dialogStore.closeCreatePostDialog();
   } catch (error) {
-    console.error('게시물 생성 중 오류 발생:', error)
+    console.error('게시물 생성 중 오류 발생:', error);
     // 에러 처리 로직 추가 (예: 알림 표시)
   } finally {
-    // 로딩 상태 해제
-    isLoading.value = false;
+    isLoading.value = false; // 로딩 종료
   }
-}
+};
 
 const resetPostDialog = () => {
   images.value = [];
@@ -147,8 +140,12 @@ const resetPostDialog = () => {
 };
 
 const closeCreatePostDialog = () => {
-  resetPostDialog(); // 초기화
-  dialogStore.closeCreatePostDialog(); // 다이얼로그 닫기
+  if (isLoading.value) {
+    alert('업로드 중에는 창을 닫을 수 없습니다. 잠시만 기다려주세요.');
+    return;
+  }
+  resetPostDialog();
+  dialogStore.closeCreatePostDialog();
 };
 </script>
 
@@ -157,17 +154,26 @@ const closeCreatePostDialog = () => {
     v-if="dialogStore.isCreatePostDialogOpen"
     class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
   >
-    <div class="bg-white rounded-lg shadow-lg w-full max-w-3xl">
+    <div class="relative bg-white rounded-lg shadow-lg w-full max-w-3xl p-6">
+      <!-- 로딩 중일 때 중앙 로더 -->
+      <div
+        v-if="isLoading"
+        class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-25 z-50"
+      >
+        <Loader2 size="100" color="#172341" class="animate-spin" />
+      </div>
+
       <!-- Header -->
       <header class="p-4 border-b flex justify-between items-center">
         <button
           v-if="step === 1"
           @click="closeCreatePostDialog"
           class="mr-auto"
+          :disabled="isLoading"
         >
           <X class="h-5 w-5 text-gray-500" />
         </button>
-        <button v-if="step === 2" @click="handleBack" class="mr-auto">
+        <button v-if="step === 2" @click="handleBack" class="mr-auto" :disabled="isLoading">
           <ArrowLeft class="h-5 w-5 text-gray-500" />
         </button>
         <h2 class="text-lg font-bold flex-1 text-center">
@@ -177,11 +183,17 @@ const closeCreatePostDialog = () => {
           v-if="step === 1 && images.length > 0"
           @click="handleNext"
           class="text-blue-500"
+          :disabled="isLoading"
         >
           다음
         </button>
-        <button v-if="step === 2" @click="handlePost" class="text-blue-500">
-          공유하기
+        <button
+          v-if="step === 2"
+          @click="handlePost"
+          class="text-blue-500 relative flex items-center justify-center"
+          :disabled="isLoading"
+        >
+          <span v-if="!isLoading">공유하기</span>
         </button>
       </header>
 
@@ -327,5 +339,23 @@ const closeCreatePostDialog = () => {
 }
 .bg-black {
   background-color: rgba(0, 0, 0, 0.5);
+}
+
+.loader {
+  border: 2px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 2px solid #3498db;
+  width: 16px;
+  height: 16px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>
