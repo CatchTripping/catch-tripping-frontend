@@ -13,19 +13,43 @@ import {
   Settings,
 } from 'lucide-vue-next'
 
-import HomeContent from '@/components/content/HomeContent.vue'
-import MapContent from '@/components/content/MapContent.vue'
-import HelpContent from '@/components/content/HelpContent.vue'
-import BottomNavigation from '@/components/content/BottomNavigation.vue'
-import ProfileContent from '@/components/content/ProfileContent.vue'
-import SettingsContent from '@/components/content/SettingsContent.vue'
-import RegionContent from '@/components/content/RegionContent.vue'
-import CreatePostDialog from '@/components/content/CreatePostDialog.vue'
-import DetailPostDialog from '@/components/content/DetailPostDialog.vue'
+import { defineAsyncComponent } from 'vue'
+
+const HomeContent = defineAsyncComponent(
+  () => import('@/components/content/HomeContent.vue'),
+)
+const MapContent = defineAsyncComponent(
+  () => import('@/components/content/MapContent.vue'),
+)
+const HelpContent = defineAsyncComponent(
+  () => import('@/components/content/HelpContent.vue'),
+)
+const BottomNavigation = defineAsyncComponent(
+  () => import('@/components/content/BottomNavigation.vue'),
+)
+const ProfileContent = defineAsyncComponent(
+  () => import('@/components/content/ProfileContent.vue'),
+)
+const SettingsContent = defineAsyncComponent(
+  () => import('@/components/content/SettingsContent.vue'),
+)
+const RegionContent = defineAsyncComponent(
+  () => import('@/components/content/RegionContent.vue'),
+)
+const CreatePostDialog = defineAsyncComponent(
+  () => import('@/components/content/CreatePostDialog.vue'),
+)
+const DetailPostDialog = defineAsyncComponent(
+  () => import('@/components/content/DetailPostDialog.vue'),
+)
+const CourseContent = defineAsyncComponent(
+  () => import('@/components/content/CourseContent.vue'),
+)
+const AITravelContent = defineAsyncComponent(
+  () => import('@/components/content/AITravelContent.vue'),
+)
 import { useUserStore } from '@/stores/user'
 import { useDialogStore } from '@/stores/dialog'
-import CourseContent from '@/components/content/CourseContent.vue'
-import AITravelContent from '@/components/content/AITravelContent.vue'
 
 // 유저 정보 및 로그아웃 함수 정의
 const userStore = useUserStore()

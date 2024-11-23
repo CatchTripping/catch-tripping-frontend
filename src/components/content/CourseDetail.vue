@@ -1,6 +1,6 @@
 <script setup>
 import { fetchCoursesDetail } from '@/api/coursesService.js'
-import { defineEmits, defineProps, onBeforeUnmount, onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { animate } from 'motion'
 import {
   KakaoMap,

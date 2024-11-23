@@ -24,6 +24,7 @@ import { cn } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton/index.js'
 
 import { ImageOff } from 'lucide-vue-next'
+import AttractionDialog from '@/components/content/AttractionDialog.vue'
 
 const hotPlaces = useHotPlacesStore()
 
@@ -252,6 +253,20 @@ watch(
                           ].categoryName
                         }}
                       </span>
+                      <AttractionDialog
+                        :content-id="place.contentId"
+                        :images="[
+                          { src: place.firstImage, alt: '', caption: '' },
+                        ]"
+                        :title="place.title"
+                      >
+                        <Button
+                          variant="link"
+                          class="inline gap-0 p-0 text-blue-500 text-xs h-min my-auto"
+                        >
+                          상세보기
+                        </Button>
+                      </AttractionDialog>
                     </div>
                   </div>
                 </div>
