@@ -19,41 +19,77 @@ export const useHotPlacesStore = defineStore('hotplaces', {
     renderMap(state) {
       switch (state.regionCode) {
         case 1:
-          return defineAsyncComponent(() => import('@/components/map/SeoulMap.vue'))
+          return defineAsyncComponent(
+            () => import('@/components/map/SeoulMap.vue'),
+          )
         case 2:
-          return defineAsyncComponent(() => import('@/components/map/IncheonMap.vue'))
+          return defineAsyncComponent(
+            () => import('@/components/map/IncheonMap.vue'),
+          )
         case 3:
-          return defineAsyncComponent(() => import('@/components/map/DaejeonMap.vue'))
+          return defineAsyncComponent(
+            () => import('@/components/map/DaejeonMap.vue'),
+          )
         case 4:
-          return defineAsyncComponent(() => import('@/components/map/DaeguMap.vue'))
+          return defineAsyncComponent(
+            () => import('@/components/map/DaeguMap.vue'),
+          )
         case 5:
-          return defineAsyncComponent(() => import('@/components/map/GwangjuMap.vue'))
+          return defineAsyncComponent(
+            () => import('@/components/map/GwangjuMap.vue'),
+          )
         case 6:
-          return defineAsyncComponent(() => import('@/components/map/BusanMap.vue'))
+          return defineAsyncComponent(
+            () => import('@/components/map/BusanMap.vue'),
+          )
         case 7:
-          return defineAsyncComponent(() => import('@/components/map/UlsanMap.vue'))
+          return defineAsyncComponent(
+            () => import('@/components/map/UlsanMap.vue'),
+          )
         case 8:
-          return defineAsyncComponent(() => import('@/components/map/SejongMap.vue'))
+          return defineAsyncComponent(
+            () => import('@/components/map/SejongMap.vue'),
+          )
         case 31:
-          return defineAsyncComponent(() => import('@/components/map/GyeonggiMap.vue'))
+          return defineAsyncComponent(
+            () => import('@/components/map/GyeonggiMap.vue'),
+          )
         case 32:
-          return defineAsyncComponent(() => import('@/components/map/GangwonMap.vue'))
+          return defineAsyncComponent(
+            () => import('@/components/map/GangwonMap.vue'),
+          )
         case 33:
-          return defineAsyncComponent(() => import('@/components/map/ChungbukMap.vue'))
+          return defineAsyncComponent(
+            () => import('@/components/map/ChungbukMap.vue'),
+          )
         case 34:
-          return defineAsyncComponent(() => import('@/components/map/ChungnamMap.vue'))
+          return defineAsyncComponent(
+            () => import('@/components/map/ChungnamMap.vue'),
+          )
         case 35:
-          return defineAsyncComponent(() => import('@/components/map/GyeongbukMap.vue'))
+          return defineAsyncComponent(
+            () => import('@/components/map/GyeongbukMap.vue'),
+          )
         case 36:
-          return defineAsyncComponent(() => import('@/components/map/GyeongnamMap.vue'))
+          return defineAsyncComponent(
+            () => import('@/components/map/GyeongnamMap.vue'),
+          )
         case 37:
-          return defineAsyncComponent(() => import('@/components/map/JeonbukMap.vue'))
+          return defineAsyncComponent(
+            () => import('@/components/map/JeonbukMap.vue'),
+          )
         case 38:
-          return defineAsyncComponent(() => import('@/components/map/JeonnamMap.vue'))
+          return defineAsyncComponent(
+            () => import('@/components/map/JeonnamMap.vue'),
+          )
         case 39:
-          return defineAsyncComponent(() => import('@/components/map/JejuMap.vue'))
+          return defineAsyncComponent(
+            () => import('@/components/map/JejuMap.vue'),
+          )
         default:
-          return defineAsyncComponent(() => import('@/components/map/SeoulMap.vue'))
+          return defineAsyncComponent(
+            () => import('@/components/map/SeoulMap.vue'),
+          )
       }
     },
   },

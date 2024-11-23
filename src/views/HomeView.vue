@@ -15,16 +15,36 @@ import {
 
 import { defineAsyncComponent } from 'vue'
 
-const HomeContent = defineAsyncComponent(() => import('@/components/content/HomeContent.vue'))
-const MapContent = defineAsyncComponent(() => import('@/components/content/MapContent.vue'))
-const HelpContent = defineAsyncComponent(() => import('@/components/content/HelpContent.vue'))
-const BottomNavigation = defineAsyncComponent(() => import('@/components/content/BottomNavigation.vue'))
-const ProfileContent = defineAsyncComponent(() => import('@/components/content/ProfileContent.vue'))
-const SettingsContent = defineAsyncComponent(() => import('@/components/content/SettingsContent.vue'))
-const RegionContent = defineAsyncComponent(() => import('@/components/content/RegionContent.vue'))
-const CreatePostDialog = defineAsyncComponent(() => import('@/components/content/CreatePostDialog.vue'))
-const CourseContent = defineAsyncComponent(() => import('@/components/content/CourseContent.vue'))
-const AITravelContent = defineAsyncComponent(() => import('@/components/content/AITravelContent.vue'))
+const HomeContent = defineAsyncComponent(
+  () => import('@/components/content/HomeContent.vue'),
+)
+const MapContent = defineAsyncComponent(
+  () => import('@/components/content/MapContent.vue'),
+)
+const HelpContent = defineAsyncComponent(
+  () => import('@/components/content/HelpContent.vue'),
+)
+const BottomNavigation = defineAsyncComponent(
+  () => import('@/components/content/BottomNavigation.vue'),
+)
+const ProfileContent = defineAsyncComponent(
+  () => import('@/components/content/ProfileContent.vue'),
+)
+const SettingsContent = defineAsyncComponent(
+  () => import('@/components/content/SettingsContent.vue'),
+)
+const RegionContent = defineAsyncComponent(
+  () => import('@/components/content/RegionContent.vue'),
+)
+const CreatePostDialog = defineAsyncComponent(
+  () => import('@/components/content/CreatePostDialog.vue'),
+)
+const CourseContent = defineAsyncComponent(
+  () => import('@/components/content/CourseContent.vue'),
+)
+const AITravelContent = defineAsyncComponent(
+  () => import('@/components/content/AITravelContent.vue'),
+)
 import { useUserStore } from '@/stores/user'
 import { useDialogStore } from '@/stores/dialog'
 
