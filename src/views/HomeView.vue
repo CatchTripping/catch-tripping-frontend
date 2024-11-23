@@ -21,6 +21,7 @@ import ProfileContent from '@/components/content/ProfileContent.vue'
 import SettingsContent from '@/components/content/SettingsContent.vue'
 import RegionContent from '@/components/content/RegionContent.vue'
 import CreatePostDialog from '@/components/content/CreatePostDialog.vue'
+import DetailPostDialog from '@/components/content/DetailPostDialog.vue'
 import { useUserStore } from '@/stores/user'
 import { useDialogStore } from '@/stores/dialog'
 import CourseContent from '@/components/content/CourseContent.vue'
@@ -251,7 +252,7 @@ onBeforeUnmount(() => {
 
       <!-- 다이얼로그 컴포넌트 -->
       <CreatePostDialog />
-
+      <DetailPostDialog />
       <!-- Bottom Navigation for mobile -->
       <BottomNavigation
         v-if="isMobile"

@@ -1,60 +1,69 @@
-import { defineStore } from 'pinia'
+// post.js
+import { defineStore } from 'pinia';
+import api from '@/axios.js';
 
 export const usePostsStore = defineStore('posts', {
   state: () => ({
-    posts: [
-      {
-        id: 1,
-        username: 'engtoontv',
-        avatar: '/placeholder.svg?height=40&width=40',
-        timeAgo: '1일',
-        images: [
-          '/placeholder.svg?height=600&width=400',
-          '/placeholder.svg?height=600&width=400',
-        ],
-        likes: 535,
-        caption: '👇 자세한 설명 👇',
-        comments: [],
-      },
-      {
-        id: 2,
-        username: 'traveler123',
-        avatar: '/placeholder.svg?height=40&width=40',
-        timeAgo: '3시간',
-        images: ['/placeholder.svg?height=600&width=400'],
-        likes: 1024,
-        caption: '아름다운 석양 🌅',
-        comments: [],
-      },
-      {
-        id: 3,
-        username: 'foodie_delight',
-        avatar: '/placeholder.svg?height=40&width=40',
-        timeAgo: '5시간',
-        images: [
-          '/placeholder.svg?height=600&width=400',
-          '/placeholder.svg?height=600&width=400',
-          '/placeholder.svg?height=600&width=400',
-        ],
-        likes: 789,
-        caption: '오늘의 맛있는 점심 😋🍽️',
-        comments: [],
-      },
-    ],
+    posts: [],
+    currentSlides: [], // 슬라이드 상태 관리
+    page: 1,
+    size: 10,
+    hasMore: true,
+    isLoading: false,
   }),
 
   getters: {
-    // posts에 대한 getter 추가 가능
     getPosts: state => state.posts,
   },
 
   actions: {
-    // 포스트 관련 actions 추가 가능
-    addPost(post) {
-      this.posts.push(post)
+    async fetchPosts() {
+      if (this.isLoading || !this.hasMore) return;
+
+      this.isLoading = true;
+
+      try {
+        const response = await api.get('/api/board', {
+          params: { page: this.page, size: this.size },
+        });
+
+        const fetchedPosts = response.data;
+
+        if (fetchedPosts.length < this.size) {
+          this.hasMore = false;
+        }
+
+        this.posts.push(...fetchedPosts.map(post => ({
+          id: post.boardId,
+          username: post.userName,
+          avatar: post.profileImage || '/default-avatar.png',
+          timeAgo: `${post.createdDate} ${post.createdAt}`,
+          images: post.imageUrls,
+          likes: post.likesCount,
+          caption: post.content,
+          isLiked: post.isLiked,
+          comments: [],
+        })));
+
+        // 슬라이드 상태 초기화
+        this.currentSlides = this.posts.map(() => 0);
+        this.page += 1;
+      } catch (error) {
+        console.error('게시물 불러오기 중 오류 발생:', error);
+      } finally {
+        this.isLoading = false;
+      }
     },
-    removePost(postId) {
-      this.posts = this.posts.filter(post => post.id !== postId)
+
+    updateCurrentSlide(postIndex, direction) {
+      if (direction === 'prev') {
+        this.currentSlides[postIndex] = Math.max(0, this.currentSlides[postIndex] - 1);
+      } else if (direction === 'next') {
+        this.currentSlides[postIndex] = Math.min(
+          this.posts[postIndex].images.length - 1,
+          this.currentSlides[postIndex] + 1
+        );
+      }
     },
   },
-})
+});
