@@ -7,7 +7,7 @@ import {
   X,
   ChevronRight,
   MapPin,
-  Loader2
+  Loader2,
 } from 'lucide-vue-next'
 import { useUserStore } from '@/stores/user.js'
 import { useDialogStore } from '@/stores/dialog'
@@ -83,70 +83,70 @@ const handleNext = () => {
 }
 
 const handlePost = async () => {
-  if (isLoading.value) return; // 이미 로딩 중이면 실행 방지
+  if (isLoading.value) return // 이미 로딩 중이면 실행 방지
 
   try {
-    isLoading.value = true; // 로딩 시작
+    isLoading.value = true // 로딩 시작
 
     // 이미지 업로드 로직
-    const uploadPromises = images.value.map(async (file) => {
+    const uploadPromises = images.value.map(async file => {
       const response = await api.get('/api/s3/presigned-url', {
         params: {
           filename: file.name,
           method: 'PUT',
           type: 'board',
         },
-      });
+      })
 
-      const { url, key } = response.data;
+      const { url, key } = response.data
 
       await api.put(url, file, {
         headers: {
           'Content-Type': file.type,
         },
-      });
+      })
 
-      return key;
-    });
+      return key
+    })
 
-    const imageKeys = await Promise.all(uploadPromises);
+    const imageKeys = await Promise.all(uploadPromises)
 
     // 게시물 생성 요청
     const postData = {
       content: caption.value,
       imageKeys: imageKeys,
-    };
+    }
 
-    await api.post('/api/board', postData);
+    await api.post('/api/board', postData)
 
     // 성공 시 초기화 및 다이얼로그 닫기
-    resetPostDialog();
-    dialogStore.closeCreatePostDialog();
+    resetPostDialog()
+    dialogStore.closeCreatePostDialog()
   } catch (error) {
-    console.error('게시물 생성 중 오류 발생:', error);
+    console.error('게시물 생성 중 오류 발생:', error)
     // 에러 처리 로직 추가 (예: 알림 표시)
   } finally {
-    isLoading.value = false; // 로딩 종료
+    isLoading.value = false // 로딩 종료
   }
-};
+}
 
 const resetPostDialog = () => {
-  images.value = [];
-  imagePreviews.value = [];
-  caption.value = '';
-  location.value = '';
-  currentImageIndex.value = 0;
-  step.value = 1;
-};
+  images.value = []
+  imagePreviews.value = []
+  caption.value = ''
+  location.value = ''
+  currentImageIndex.value = 0
+  step.value = 1
+}
 
 const closeCreatePostDialog = () => {
   if (isLoading.value) {
-    alert('업로드 중에는 창을 닫을 수 없습니다. 잠시만 기다려주세요.');
-    return;
+    alert('업로드 중에는 창을 닫을 수 없습니다. 잠시만 기다려주세요.')
+    return
   }
-  resetPostDialog();
-  dialogStore.closeCreatePostDialog();
-};
+  resetPostDialog()
+  dialogStore.closeCreatePostDialog()
+}
 </script>
 
 <template>
@@ -173,7 +173,12 @@ const closeCreatePostDialog = () => {
         >
           <X class="h-5 w-5 text-gray-500" />
         </button>
-        <button v-if="step === 2" @click="handleBack" class="mr-auto" :disabled="isLoading">
+        <button
+          v-if="step === 2"
+          @click="handleBack"
+          class="mr-auto"
+          :disabled="isLoading"
+        >
           <ArrowLeft class="h-5 w-5 text-gray-500" />
         </button>
         <h2 class="text-lg font-bold flex-1 text-center">
@@ -281,12 +286,16 @@ const closeCreatePostDialog = () => {
           <div class="flex items-center space-x-2 border-b pb-2">
             <div
               class="w-8 h-8 rounded-full bg-gray-300 flex-shrink-0"
-              :style="userInfo?.profileImage ? `background-image: url(${userInfo.profileImage}); background-size: cover; background-position: center;` : ''"
+              :style="
+                userInfo?.profileImage
+                  ? `background-image: url(${userInfo.profileImage}); background-size: cover; background-position: center;`
+                  : ''
+              "
             ></div>
             <!-- User Avatar Placeholder -->
             <span class="font-semibold">{{
-                userInfo?.userName || '귀여운 토끼'
-              }}</span>
+              userInfo?.userName || '귀여운 토끼'
+            }}</span>
           </div>
 
           <!-- Caption Input -->

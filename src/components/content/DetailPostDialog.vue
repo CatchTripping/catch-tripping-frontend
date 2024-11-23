@@ -1,24 +1,24 @@
 <script setup>
-import { ref, computed } from 'vue';
-import { ChevronLeft, ChevronRight, Heart, Smile } from 'lucide-vue-next';
-import { useDialogStore } from '@/stores/dialog';
+import { ref, computed } from 'vue'
+import { ChevronLeft, ChevronRight, Smile } from 'lucide-vue-next'
+import { useDialogStore } from '@/stores/dialog'
 
-const dialogStore = useDialogStore();
-const selectedPost = computed(() => dialogStore.selectedPost);
+const dialogStore = useDialogStore()
+const selectedPost = computed(() => dialogStore.selectedPost)
 
-const currentImageIndex = ref(0);
+const currentImageIndex = ref(0)
 
 const prevImage = () => {
   if (currentImageIndex.value > 0) {
-    currentImageIndex.value--;
+    currentImageIndex.value--
   }
-};
+}
 
 const nextImage = () => {
   if (currentImageIndex.value < selectedPost.value.imageUrls.length - 1) {
-    currentImageIndex.value++;
+    currentImageIndex.value++
   }
-};
+}
 
 // 댓글 관련 로직은 이후에 추가
 </script>
@@ -93,9 +93,7 @@ const nextImage = () => {
             placeholder="댓글 달기..."
             class="flex-1 border-0 focus-visible:ring-0"
           />
-          <button :disabled="!newComment" @click="handleComment">
-            게시
-          </button>
+          <button :disabled="!newComment" @click="handleComment">게시</button>
         </footer>
       </div>
     </div>

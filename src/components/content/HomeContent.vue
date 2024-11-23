@@ -1,35 +1,36 @@
 <script setup>
-import { computed, onMounted } from 'vue';
-import { usePostsStore } from '@/stores/posts.js';
-import { useDialogStore } from '@/stores/dialog.js';
+import { computed, onMounted } from 'vue'
+import { usePostsStore } from '@/stores/posts.js'
+import { useDialogStore } from '@/stores/dialog.js'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import {
   ChevronLeft,
   ChevronRight,
   Heart,
   MessageCircle,
   MoreHorizontal,
-} from 'lucide-vue-next';
+} from 'lucide-vue-next'
 
-const postsStore = usePostsStore();
-const dialogStore = useDialogStore();
+const postsStore = usePostsStore()
+const dialogStore = useDialogStore()
 
 // 상태 계산: 슬라이드 상태는 Pinia의 상태와 동기화
-const currentSlides = computed(() => postsStore.currentSlides);
+const currentSlides = computed(() => postsStore.currentSlides)
 
 // 페이지 로딩 시 게시물 데이터 가져오기
 onMounted(() => {
-  postsStore.fetchPosts();
-});
+  postsStore.fetchPosts()
+})
 
 // 슬라이드 변경 함수
 const handleSlideChange = (postIndex, direction) => {
-  postsStore.updateCurrentSlide(postIndex, direction);
-};
+  postsStore.updateCurrentSlide(postIndex, direction)
+}
 
 // 더보기 버튼 클릭 이벤트 (추후 구현 가능)
 const onMoreClick = () => {
-  console.log('더보기 버튼 클릭');
-};
+  console.log('더보기 버튼 클릭')
+}
 </script>
 
 <template>
@@ -67,7 +68,9 @@ const onMoreClick = () => {
             <div class="overflow-hidden">
               <div
                 class="flex transition-transform duration-300 ease-in-out"
-                :style="{ transform: `translateX(-${currentSlides[postIndex] * 100}%)` }"
+                :style="{
+                  transform: `translateX(-${currentSlides[postIndex] * 100}%)`,
+                }"
               >
                 <img
                   v-for="(image, index) in post.images"
@@ -104,7 +107,12 @@ const onMoreClick = () => {
               <div
                 v-for="(image, index) in post.images"
                 :key="index"
-                :class="[ 'w-2 h-2 rounded-full', index === currentSlides[postIndex] ? 'bg-primary' : 'bg-muted' ]"
+                :class="[
+                  'w-2 h-2 rounded-full',
+                  index === currentSlides[postIndex]
+                    ? 'bg-primary'
+                    : 'bg-muted',
+                ]"
               />
             </div>
           </div>

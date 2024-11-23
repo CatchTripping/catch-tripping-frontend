@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios from '../axios.js'
 
 export const fetchAITravelList = async params => {
   const response = await axios.post(

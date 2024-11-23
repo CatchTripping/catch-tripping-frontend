@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios from '../axios.js'
 
 export const fetchCoursesList = async params => {
   const response = await axios.get('/api/tourcourses', { params })
