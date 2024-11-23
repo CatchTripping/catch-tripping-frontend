@@ -11,10 +11,12 @@ const selectedPost = computed(() => dialogStore.selectedPost)
 
 const currentImageIndex = ref(0)
 const newComment = ref('')
+const selectedReply = ref(null) // 답글 대상
 const comments = ref([])
 const childComments = ref({})
 const currentPage = ref(1)
 const isLoadingComments = ref(false)
+const showReplies = ref({}) // 답글 보이기 상태
 
 // 댓글 불러오기
 const fetchComments = async () => {
@@ -32,6 +34,26 @@ const fetchComments = async () => {
     console.error('댓글 불러오기 오류:', error)
   } finally {
     isLoadingComments.value = false
+  }
+}
+
+// 답글 보이기/숨기기
+const toggleReplies = async (parentId) => {
+  if (showReplies.value[parentId]) {
+    // 숨기기
+    showReplies.value[parentId] = false
+  } else {
+    // 보이기
+    showReplies.value[parentId] = true
+    if (!childComments.value[parentId]) {
+      childComments.value[parentId] = []
+      try {
+        const replies = await postsStore.fetchChildComments(parentId)
+        childComments.value[parentId] = replies
+      } catch (error) {
+        console.error('대댓글 불러오기 오류:', error)
+      }
+    }
   }
 }
 
@@ -71,27 +93,49 @@ const handleComment = async () => {
   if (!newComment.value.trim() || !selectedPost.value) return
 
   try {
-    const comment = await postsStore.addComment(selectedPost.value.boardId, newComment.value.trim())
-    comments.value.unshift(comment);
+    if (selectedReply.value) {
+      // 대댓글 작성
+      const replyContent = newComment.value.replace(/^@\S+\s/, "") // @닉네임 제거
+      const reply = await postsStore.addChildComment(
+        selectedPost.value.boardId,
+        replyContent,
+        selectedReply.value
+      )
+      if (!childComments.value[selectedReply.value]) {
+        childComments.value[selectedReply.value] = []
+      }
+      childComments.value[selectedReply.value].push(reply)
+      selectedReply.value = null
+    } else {
+      // 일반 댓글 작성
+      const comment = await postsStore.addComment(selectedPost.value.boardId, newComment.value.trim())
+      comments.value.unshift(comment)
+    }
     newComment.value = ''
   } catch (error) {
     console.error('댓글 작성 오류:', error)
   }
 }
 
-// 대댓글 작성
-const handleReply = async (parentId, replyContent) => {
-  if (!replyContent.trim()) return
+// // 대댓글 작성
+// const handleReply = async (parentId, replyContent) => {
+//   if (!replyContent.trim()) return
+//
+//   try {
+//     const reply = await postsStore.addChildComment(parentId, replyContent)
+//     if (!childComments.value[parentId]) {
+//       childComments.value[parentId] = { replies: [] }
+//     }
+//     childComments.value[parentId].replies.push(reply)
+//   } catch (error) {
+//     console.error('대댓글 작성 오류:', error)
+//   }
+// }
 
-  try {
-    const reply = await postsStore.addChildComment(parentId, replyContent)
-    if (!childComments.value[parentId]) {
-      childComments.value[parentId] = { replies: [] }
-    }
-    childComments.value[parentId].replies.push(reply)
-  } catch (error) {
-    console.error('대댓글 작성 오류:', error)
-  }
+// 답글 달기 클릭
+const handleReplyClick = (userName, commentId) => {
+  selectedReply.value = commentId
+  newComment.value = `@${userName} `
 }
 
 const prevImage = () => {
@@ -165,37 +209,26 @@ const nextImage = () => {
 
         <!-- 댓글 표시 영역 -->
         <div class="flex flex-col flex-1">
-          <!-- 댓글 표시 -->
+          <!-- 댓글 영역 -->
           <div class="flex-1 overflow-y-auto p-4">
             <div v-for="comment in comments" :key="comment.commentId" class="mb-4">
               <div class="flex items-start gap-2">
-                <img
-                  class="h-8 w-8 rounded-full"
-                  :src="comment.avatar || defaultAvatar"
-                  alt="User Avatar"
-                />
+                <img class="h-8 w-8 rounded-full" :src="comment.profileImage || defaultAvatar" alt="User Avatar" />
                 <div>
                   <div>
-                    <span class="font-semibold text-sm">{{ comment.userId }}</span>
+                    <span class="font-semibold text-sm">{{ comment.userName }}</span>
                     <span class="text-sm">{{ comment.content }}</span>
                   </div>
                   <div class="text-xs text-muted-foreground">{{ comment.createdAt }}</div>
-                  <button @click="fetchChildComments(comment.commentId)" class="text-xs text-blue-500">
-                    답글 보기
+                  <button @click="handleReplyClick(comment.userName, comment.commentId)" class="text-xs text-blue-500">답글 달기</button>
+                  <button @click="toggleReplies(comment.commentId)" class="text-xs text-blue-500">
+                    {{ showReplies[comment.commentId] ? '답글 숨기기' : '답글 보기' }}
                   </button>
-                  <div v-if="childComments[comment.commentId]?.replies">
-                    <div
-                      v-for="reply in childComments[comment.commentId].replies"
-                      :key="reply.commentId"
-                      class="flex items-start gap-2 mt-2"
-                    >
-                      <img
-                        class="h-8 w-8 rounded-full"
-                        :src="reply.avatar || defaultAvatar"
-                        alt="User Avatar"
-                      />
+                  <div v-if="showReplies[comment.commentId]">
+                    <div v-for="reply in childComments[comment.commentId]" :key="reply.commentId" class="flex items-start gap-2 mt-2">
+                      <img class="h-8 w-8 rounded-full" :src="reply.profileImage || defaultAvatar" alt="User Avatar" />
                       <div>
-                        <span class="font-semibold text-sm">{{ reply.username }}</span>
+                        <span class="font-semibold text-sm">{{ reply.userName }}</span>
                         <span class="text-sm">{{ reply.content }}</span>
                       </div>
                     </div>
@@ -211,11 +244,7 @@ const nextImage = () => {
             <button>
               <Smile class="h-5 w-5" />
             </button>
-            <input
-              v-model="newComment"
-              placeholder="댓글 달기..."
-              class="flex-1 border-0 focus-visible:ring-0"
-            />
+            <input v-model="newComment" placeholder="댓글 달기..." class="flex-1 border-0 focus-visible:ring-0" />
             <button :disabled="!newComment" @click="handleComment">게시</button>
           </footer>
         </div>

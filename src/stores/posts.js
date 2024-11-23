@@ -99,8 +99,8 @@ export const usePostsStore = defineStore('posts', {
       return response.data
     },
 
-    async addChildComment(parentId, content) {
-      const response = await api.post(`/api/comment`, { parentCommentId: parentId, content })
+    async addChildComment(boardId, content, parentId) {
+      const response = await api.post(`/api/comment`, { boardId, content, parentCommentId: parentId })
       return response.data
     },
   },
