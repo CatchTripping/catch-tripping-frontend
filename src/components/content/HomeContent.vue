@@ -53,43 +53,43 @@ const onSearchClick = () => {
 
 <template>
   <div class="space-y-6 p-6 max-w-[600px]">
-    <h2 class="text-2xl font-bold">홈</h2>
-    <!-- 검색바 -->
-    <div class="flex items-center space-x-2 mb-4">
-      <Input
-        type="search"
-        placeholder="검색..."
-        class="max-w-sm"
-        v-model="searchQuery"
-      />
-      <Button size="icon" variant="ghost" @click="onSearchClick">
-        <Search class="h-5 w-5" />
-      </Button>
-    </div>
+<!--    <h2 class="text-2xl font-bold">홈</h2>-->
+<!--    &lt;!&ndash; 검색바 &ndash;&gt;-->
+<!--    <div class="flex items-center space-x-2 mb-4">-->
+<!--      <Input-->
+<!--        type="search"-->
+<!--        placeholder="검색..."-->
+<!--        class="max-w-sm"-->
+<!--        v-model="searchQuery"-->
+<!--      />-->
+<!--      <Button size="icon" variant="ghost" @click="onSearchClick">-->
+<!--        <Search class="h-5 w-5" />-->
+<!--      </Button>-->
+<!--    </div>-->
 
-    <!-- Stories -->
-    <div class="overflow-x-auto no-scrollbar">
-      <div class="flex gap-4 p-4 min-w-max">
-        <div
-          v-for="story in storiesStore.getStories"
-          :key="story.id"
-          class="flex flex-col items-center gap-1"
-        >
-          <div
-            class="w-16 h-16 rounded-full p-[3px] bg-gradient-to-tr from-yellow-400 to-fuchsia-600"
-          >
-            <img
-              :src="story.avatar"
-              :alt="story.username"
-              class="rounded-full border-2 border-background"
-            />
-          </div>
-          <span class="text-xs text-muted-foreground">{{
-            story.username
-          }}</span>
-        </div>
-      </div>
-    </div>
+<!--    &lt;!&ndash; Stories &ndash;&gt;-->
+<!--    <div class="overflow-x-auto no-scrollbar">-->
+<!--      <div class="flex gap-4 p-4 min-w-max">-->
+<!--        <div-->
+<!--          v-for="story in storiesStore.getStories"-->
+<!--          :key="story.id"-->
+<!--          class="flex flex-col items-center gap-1"-->
+<!--        >-->
+<!--          <div-->
+<!--            class="w-16 h-16 rounded-full p-[3px] bg-gradient-to-tr from-yellow-400 to-fuchsia-600"-->
+<!--          >-->
+<!--            <img-->
+<!--              :src="story.avatar"-->
+<!--              :alt="story.username"-->
+<!--              class="rounded-full border-2 border-background"-->
+<!--            />-->
+<!--          </div>-->
+<!--          <span class="text-xs text-muted-foreground">{{-->
+<!--            story.username-->
+<!--          }}</span>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </div>-->
 
     <!-- Posts -->
     <div class="space-y-6">
@@ -184,13 +184,13 @@ const onSearchClick = () => {
                 <Button variant="ghost" size="icon">
                   <MessageCircle class="h-6 w-6" />
                 </Button>
-                <Button variant="ghost" size="icon">
-                  <Share2 class="h-6 w-6" />
-                </Button>
+<!--                <Button variant="ghost" size="icon">-->
+<!--                <Share2 class="h-6 w-6" />-->
+<!--              </Button>-->
               </div>
-              <Button variant="ghost" size="icon">
-                <Bookmark class="h-6 w-6" />
-              </Button>
+<!--              <Button variant="ghost" size="icon">-->
+<!--                <Bookmark class="h-6 w-6" />-->
+<!--              </Button>-->
             </div>
             <div>
               <p class="font-semibold">좋아요 {{ post.likes }}개</p>
