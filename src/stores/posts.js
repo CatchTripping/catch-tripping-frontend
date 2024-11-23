@@ -1,6 +1,7 @@
 // post.js
 import { defineStore } from 'pinia'
 import api from '@/axios.js'
+import defaultAvatar from '@/assets/no_picture.png'
 
 export const usePostsStore = defineStore('posts', {
   state: () => ({
@@ -17,6 +18,14 @@ export const usePostsStore = defineStore('posts', {
   },
 
   actions: {
+    resetPosts() {
+      this.posts = [];
+      this.page = 1;
+      this.hasMore = true;
+      this.isLoading = false;
+      this.currentSlides = [];
+    },
+
     async fetchPosts() {
       if (this.isLoading || !this.hasMore) return
 
@@ -29,6 +38,7 @@ export const usePostsStore = defineStore('posts', {
 
         const fetchedPosts = response.data
 
+        console.log(fetchedPosts)
         if (fetchedPosts.length < this.size) {
           this.hasMore = false
         }
@@ -37,7 +47,7 @@ export const usePostsStore = defineStore('posts', {
           ...fetchedPosts.map(post => ({
             id: post.boardId,
             username: post.userName,
-            avatar: post.profileImage || '/default-avatar.png',
+            avatar: post?.profileImage || defaultAvatar,
             timeAgo: `${post.createdDate} ${post.createdAt}`,
             images: post.imageUrls,
             likes: post.likesCount,
@@ -69,6 +79,29 @@ export const usePostsStore = defineStore('posts', {
           this.currentSlides[postIndex] + 1,
         )
       }
+    },
+    async fetchParentComments(boardId, page = 1, size = 20) {
+      const response = await api.get(`/api/comment/${boardId}`, {
+        params: { page, size },
+      })
+      return response.data;
+    },
+
+    async fetchChildComments(parentId, page = 1, size = 20) {
+      const response = await api.get(`/api/comment/child-comments/${parentId}`, {
+        params: { page, size },
+      })
+      return response.data
+    },
+
+    async addComment(boardId, content) {
+      const response = await api.post(`/api/comment`, { boardId, content })
+      return response.data
+    },
+
+    async addChildComment(parentId, content) {
+      const response = await api.post(`/api/comment`, { parentCommentId: parentId, content })
+      return response.data
     },
   },
 })
