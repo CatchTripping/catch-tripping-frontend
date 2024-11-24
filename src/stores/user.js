@@ -4,6 +4,7 @@ import api from '../axios.js'
 import router from '@/router/index.js'
 import validationState from 'lodash/seq.js'
 import errors from 'lodash/seq.js'
+import { usePostsStore } from '@/stores/posts'
 
 import { useToast } from '@/components/ui/toast/use-toast'
 
@@ -135,6 +136,11 @@ export const useUserStore = defineStore('user', {
       try {
         await api.post('/logout', {})
         this.userInfo = null
+
+        // 로그아웃 후 postsStore 초기화
+        const postsStore = usePostsStore()
+        postsStore.resetPosts()
+
         sonner.success('로그아웃 성공')
       } catch (error) {
         sonner.error('로그아웃 실패', {

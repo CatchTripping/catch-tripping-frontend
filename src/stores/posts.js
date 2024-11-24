@@ -1,6 +1,7 @@
 // post.js
 import { defineStore } from 'pinia'
 import api from '@/axios.js'
+import defaultAvatar from '@/assets/no_picture.png'
 
 export const usePostsStore = defineStore('posts', {
   state: () => ({
@@ -17,6 +18,14 @@ export const usePostsStore = defineStore('posts', {
   },
 
   actions: {
+    resetPosts() {
+      this.posts = []
+      this.page = 1
+      this.hasMore = true
+      this.isLoading = false
+      this.currentSlides = []
+    },
+
     async fetchPosts() {
       if (this.isLoading || !this.hasMore) return
 
@@ -29,6 +38,7 @@ export const usePostsStore = defineStore('posts', {
 
         const fetchedPosts = response.data
 
+        console.log(fetchedPosts)
         if (fetchedPosts.length < this.size) {
           this.hasMore = false
         }
@@ -37,12 +47,12 @@ export const usePostsStore = defineStore('posts', {
           ...fetchedPosts.map(post => ({
             id: post.boardId,
             username: post.userName,
-            avatar: post.profileImage || '/default-avatar.png',
+            avatar: post?.profileImage || defaultAvatar,
             timeAgo: `${post.createdDate} ${post.createdAt}`,
             images: post.imageUrls,
             likes: post.likesCount,
             caption: post.content,
-            isLiked: post.isLiked,
+            isLiked: post.isLikedByLogInUser,
             comments: [],
           })),
         )
@@ -68,6 +78,62 @@ export const usePostsStore = defineStore('posts', {
           this.posts[postIndex].images.length - 1,
           this.currentSlides[postIndex] + 1,
         )
+      }
+    },
+    async fetchParentComments(boardId, page = 1, size = 20) {
+      const response = await api.get(`/api/comment/${boardId}`, {
+        params: { page, size },
+      })
+      return response.data
+    },
+
+    async fetchChildComments(parentId, page = 1, size = 20) {
+      const response = await api.get(
+        `/api/comment/child-comments/${parentId}`,
+        {
+          params: { page, size },
+        },
+      )
+      return response.data
+    },
+
+    async addComment(boardId, content) {
+      const response = await api.post(`/api/comment`, { boardId, content })
+      return response.data
+    },
+
+    async addChildComment(boardId, content, parentId) {
+      const response = await api.post(`/api/comment`, {
+        boardId,
+        content,
+        parentCommentId: parentId,
+      })
+      return response.data // 작성된 답글 데이터를 반환
+    },
+    // 좋아요 추가
+    async addLike(postId) {
+      try {
+        await api.post('/api/board/like', { boardId: postId })
+        const post = this.posts.find(p => p.id === postId)
+        if (post) {
+          post.isLiked = true
+          post.likes += 1
+        }
+      } catch (error) {
+        console.error('좋아요 추가 중 오류 발생:', error)
+      }
+    },
+    // 좋아요 취소
+    async deleteLike(postId) {
+      try {
+        await api.delete('/api/board/like', { data: { boardId: postId } })
+        const post = this.posts.find(p => p.id === postId)
+        if (post) {
+          post.isLiked = false
+          post.likes -= 1
+        }
+      } catch (error) {
+        console.error('좋아요 취소 중 오류 발생:', error)
       }
     },
   },
