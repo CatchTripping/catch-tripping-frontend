@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { ChevronLeft, ChevronRight, Smile } from 'lucide-vue-next'
+import { ChevronLeft, ChevronRight, Smile, Heart } from 'lucide-vue-next'
 import { useDialogStore } from '@/stores/dialog'
 import { usePostsStore } from '@/stores/posts.js'
 import defaultAvatar from '@/assets/no_picture.png'
@@ -17,6 +17,23 @@ const childComments = ref({})
 const currentPage = ref(1)
 const isLoadingComments = ref(false)
 const showReplies = ref({}) // 답글 보이기 상태
+
+// 좋아요 추가 및 취소 처리
+const toggleLike = async () => {
+  try {
+    if (selectedPost.value.isLikedByLogInUser) {
+      await postsStore.deleteLike(selectedPost.value.boardId);
+      selectedPost.value.isLikedByLogInUser = false; // 좋아요 상태 업데이트
+      selectedPost.value.likesCount -= 1; // 좋아요 수 감소
+    } else {
+      await postsStore.addLike(selectedPost.value.boardId);
+      selectedPost.value.isLikedByLogInUser = true; // 좋아요 상태 업데이트
+      selectedPost.value.likesCount += 1; // 좋아요 수 증가
+    }
+  } catch (error) {
+    console.error('좋아요 처리 오류:', error);
+  }
+};
 
 // 댓글 불러오기
 const fetchComments = async () => {
@@ -262,6 +279,16 @@ const nextImage = () => {
             <button v-if="isLoadingComments" class="text-sm">
               댓글 불러오는 중...
             </button>
+          </div>
+          <!-- 좋아요 및 댓글 아이콘 -->
+          <div class="p-4 flex items-center gap-4">
+            <button @click="toggleLike">
+              <Heart
+                class="h-6 w-6"
+                :class="{ 'fill-black': selectedPost.isLikedByLogInUser }"
+              />
+            </button>
+            <span>좋아요 {{ selectedPost.likesCount }}개</span>
           </div>
           <!-- 댓글 입력 -->
           <footer class="p-4 border-t flex items-center gap-2">
