@@ -110,12 +110,11 @@ export const usePostsStore = defineStore('posts', {
     // 좋아요 추가
     async addLike(postId) {
       try {
-        const response = await api.post('/api/board/like', { boardId: postId });
-        const updatedPost = response.data; // 서버에서 반환된 최신 데이터
+        await api.post('/api/board/like', { boardId: postId });
         const post = this.posts.find(p => p.id === postId);
         if (post) {
           post.isLiked = true
-          post.likes = updatedPost.likesCount; // 서버에서 반환된 최신 좋아요 수
+          post.likes += 1;
         }
       } catch (error) {
         console.error('좋아요 추가 중 오류 발생:', error);
@@ -124,12 +123,11 @@ export const usePostsStore = defineStore('posts', {
     // 좋아요 취소
     async deleteLike(postId) {
       try {
-        const response = await api.delete('/api/board/like', { data: { boardId: postId } });
-        const updatedPost = response.data;
+        await api.delete('/api/board/like', { data: { boardId: postId } });
         const post = this.posts.find(p => p.id === postId);
         if (post) {
           post.isLiked = false
-          post.likes = updatedPost.likesCount;
+          post.likes -= 1;
         }
       } catch (error) {
         console.error('좋아요 취소 중 오류 발생:', error);
