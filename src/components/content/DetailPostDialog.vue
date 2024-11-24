@@ -22,18 +22,18 @@ const showReplies = ref({}) // 답글 보이기 상태
 const toggleLike = async () => {
   try {
     if (selectedPost.value.isLikedByLogInUser) {
-      await postsStore.deleteLike(selectedPost.value.boardId);
-      selectedPost.value.isLikedByLogInUser = false; // 좋아요 상태 업데이트
-      selectedPost.value.likesCount -= 1; // 좋아요 수 감소
+      await postsStore.deleteLike(selectedPost.value.boardId)
+      selectedPost.value.isLikedByLogInUser = false // 좋아요 상태 업데이트
+      selectedPost.value.likesCount -= 1 // 좋아요 수 감소
     } else {
-      await postsStore.addLike(selectedPost.value.boardId);
-      selectedPost.value.isLikedByLogInUser = true; // 좋아요 상태 업데이트
-      selectedPost.value.likesCount += 1; // 좋아요 수 증가
+      await postsStore.addLike(selectedPost.value.boardId)
+      selectedPost.value.isLikedByLogInUser = true // 좋아요 상태 업데이트
+      selectedPost.value.likesCount += 1 // 좋아요 수 증가
     }
   } catch (error) {
-    console.error('좋아요 처리 오류:', error);
+    console.error('좋아요 처리 오류:', error)
   }
-};
+}
 
 // 댓글 불러오기
 const fetchComments = async () => {
@@ -43,7 +43,7 @@ const fetchComments = async () => {
   try {
     const parentComments = await postsStore.fetchParentComments(
       selectedPost.value.boardId,
-      currentPage.value
+      currentPage.value,
     )
     comments.value.push(...parentComments)
     currentPage.value++
@@ -55,94 +55,96 @@ const fetchComments = async () => {
 }
 
 // 답글 보이기/숨기기
-const toggleReplies = async (parentId) => {
+const toggleReplies = async parentId => {
   if (showReplies.value[parentId]) {
     // 숨기기
-    showReplies.value[parentId] = false;
+    showReplies.value[parentId] = false
   } else {
     // 보이기
-    showReplies.value[parentId] = true;
-    if (!childComments.value[parentId] || childComments.value[parentId].length === 0) {
+    showReplies.value[parentId] = true
+    if (
+      !childComments.value[parentId] ||
+      childComments.value[parentId].length === 0
+    ) {
       try {
-        const replies = await postsStore.fetchChildComments(parentId);
-        childComments.value[parentId] = replies;
+        const replies = await postsStore.fetchChildComments(parentId)
+        childComments.value[parentId] = replies
       } catch (error) {
-        console.error('대댓글 불러오기 오류:', error);
+        console.error('대댓글 불러오기 오류:', error)
       }
     }
   }
-};
-
+}
 
 watch(
   () => dialogStore.selectedPost,
-  async (post) => {
+  async post => {
     if (post) {
       comments.value = [] // 이전 댓글 초기화
       currentPage.value = 1 // 페이지 초기화
       await fetchComments()
     }
-  }
+  },
 )
 
 // 대댓글 불러오기
-const fetchChildComments = async (parentId) => {
+const fetchChildComments = async parentId => {
   try {
-    const replies = await postsStore.fetchChildComments(parentId);
-    childComments.value[parentId] = replies;
+    const replies = await postsStore.fetchChildComments(parentId)
+    childComments.value[parentId] = replies
   } catch (error) {
-    console.error("대댓글 불러오기 오류:", error);
+    console.error('대댓글 불러오기 오류:', error)
   }
 }
 
 // 댓글 작성
 const handleComment = async () => {
-  if (!newComment.value.trim() || !selectedPost.value) return;
+  if (!newComment.value.trim() || !selectedPost.value) return
 
   try {
     if (selectedReply.value) {
       // 대댓글 작성
-      const replyContent = newComment.value.replace(/^@\S+\s/, "")
+      const replyContent = newComment.value.replace(/^@\S+\s/, '')
       const reply = await postsStore.addChildComment(
         selectedPost.value.boardId,
         replyContent,
-        selectedReply.value
+        selectedReply.value,
       )
       if (reply === '댓글 저장 성공') {
         // 답글 보기 상태 확인 후 처리
         if (!showReplies.value[selectedReply.value]) {
-          showReplies.value[selectedReply.value] = true; // 답글 보기 상태로 설정
+          showReplies.value[selectedReply.value] = true // 답글 보기 상태로 설정
         }
 
         // 답글 목록 갱신
-        await fetchChildComments(selectedReply.value);
+        await fetchChildComments(selectedReply.value)
 
         // 답글 개수 증가
         const parentComment = comments.value.find(
-          (comment) => comment.commentId === selectedReply.value
-        );
+          comment => comment.commentId === selectedReply.value,
+        )
         if (parentComment) {
-          parentComment.childCommentCount += 1;
+          parentComment.childCommentCount += 1
         }
 
-        selectedReply.value = null; // 답글 대상 초기화
+        selectedReply.value = null // 답글 대상 초기화
       }
     } else {
       // 일반 댓글 작성
       await postsStore.addComment(
         selectedPost.value.boardId,
-        newComment.value.trim()
-      );
+        newComment.value.trim(),
+      )
       // 댓글 목록 다시 호출
-      comments.value = []; // 기존 댓글 초기화
-      currentPage.value = 1; // 페이지 초기화
-      await fetchComments(); // 댓글 다시 불러오기
+      comments.value = [] // 기존 댓글 초기화
+      currentPage.value = 1 // 페이지 초기화
+      await fetchComments() // 댓글 다시 불러오기
     }
-    newComment.value = ''; // 입력 필드 초기화
+    newComment.value = '' // 입력 필드 초기화
   } catch (error) {
-    console.error('댓글 작성 오류:', error);
+    console.error('댓글 작성 오류:', error)
   }
-};
+}
 
 // 답글 달기 클릭
 const handleReplyClick = (userName, commentId) => {
@@ -227,7 +229,11 @@ const nextImage = () => {
         <div class="flex flex-col flex-1">
           <!-- 댓글 영역 -->
           <div class="flex-1 overflow-y-auto p-4 max-h-[492.4px]">
-            <div v-for="comment in comments" :key="comment.commentId" class="mb-4">
+            <div
+              v-for="comment in comments"
+              :key="comment.commentId"
+              class="mb-4"
+            >
               <div class="flex items-start gap-2">
                 <img
                   class="h-8 w-8 rounded-full"
@@ -236,15 +242,21 @@ const nextImage = () => {
                 />
                 <div>
                   <div>
-                    <span class="font-semibold text-sm">{{ comment.userName }}</span>
+                    <span class="font-semibold text-sm">{{
+                      comment.userName
+                    }}</span>
                     <span class="text-sm">{{ comment.content }}</span>
                   </div>
-                  <div class="text-xs text-muted-foreground">{{ comment.createdAt }}</div>
+                  <div class="text-xs text-muted-foreground">
+                    {{ comment.createdAt }}
+                  </div>
                   <div class="flex flex-col gap-1 mt-2">
                     <!-- 답글 달기 -->
                     <div>
                       <button
-                        @click="handleReplyClick(comment.userName, comment.commentId)"
+                        @click="
+                          handleReplyClick(comment.userName, comment.commentId)
+                        "
                         class="text-xs font-bold text-gray-500"
                       >
                         답글 달기
@@ -260,7 +272,11 @@ const nextImage = () => {
                         @click="toggleReplies(comment.commentId)"
                         class="text-xs font-bold text-gray-500"
                       >
-                        {{ showReplies[comment.commentId] ? '답글 숨기기' : `답글 보기(${comment.childCommentCount})` }}
+                        {{
+                          showReplies[comment.commentId]
+                            ? '답글 숨기기'
+                            : `답글 보기(${comment.childCommentCount})`
+                        }}
                       </button>
                     </div>
                   </div>
@@ -277,7 +293,9 @@ const nextImage = () => {
                         alt="User Avatar"
                       />
                       <div>
-                        <span class="font-semibold text-sm">{{ reply.userName }}</span>
+                        <span class="font-semibold text-sm">{{
+                          reply.userName
+                        }}</span>
                         <span class="text-sm">{{ reply.content }}</span>
                       </div>
                     </div>
@@ -304,7 +322,11 @@ const nextImage = () => {
             <button>
               <Smile class="h-5 w-5" />
             </button>
-            <input v-model="newComment" placeholder="댓글 달기..." class="flex-1 border-0 focus-visible:ring-0" />
+            <input
+              v-model="newComment"
+              placeholder="댓글 달기..."
+              class="flex-1 border-0 focus-visible:ring-0"
+            />
             <button :disabled="!newComment" @click="handleComment">게시</button>
           </footer>
         </div>

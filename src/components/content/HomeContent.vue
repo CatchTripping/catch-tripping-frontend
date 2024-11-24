@@ -23,17 +23,17 @@ onMounted(() => {
 })
 
 // 좋아요 추가 및 취소 처리
-const toggleLike = async (post) => {
+const toggleLike = async post => {
   try {
     if (post.isLiked) {
-      await postsStore.deleteLike(post.id);
+      await postsStore.deleteLike(post.id)
     } else {
-      await postsStore.addLike(post.id);
+      await postsStore.addLike(post.id)
     }
   } catch (error) {
-    console.error('좋아요 처리 오류:', error);
+    console.error('좋아요 처리 오류:', error)
   }
-};
+}
 
 // 슬라이드 변경 함수
 const handleSlideChange = (postIndex, direction) => {

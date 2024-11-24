@@ -19,11 +19,11 @@ export const usePostsStore = defineStore('posts', {
 
   actions: {
     resetPosts() {
-      this.posts = [];
-      this.page = 1;
-      this.hasMore = true;
-      this.isLoading = false;
-      this.currentSlides = [];
+      this.posts = []
+      this.page = 1
+      this.hasMore = true
+      this.isLoading = false
+      this.currentSlides = []
     },
 
     async fetchPosts() {
@@ -84,13 +84,16 @@ export const usePostsStore = defineStore('posts', {
       const response = await api.get(`/api/comment/${boardId}`, {
         params: { page, size },
       })
-      return response.data;
+      return response.data
     },
 
     async fetchChildComments(parentId, page = 1, size = 20) {
-      const response = await api.get(`/api/comment/child-comments/${parentId}`, {
-        params: { page, size },
-      })
+      const response = await api.get(
+        `/api/comment/child-comments/${parentId}`,
+        {
+          params: { page, size },
+        },
+      )
       return response.data
     },
 
@@ -104,34 +107,34 @@ export const usePostsStore = defineStore('posts', {
         boardId,
         content,
         parentCommentId: parentId,
-      });
+      })
       return response.data // 작성된 답글 데이터를 반환
     },
     // 좋아요 추가
     async addLike(postId) {
       try {
-        await api.post('/api/board/like', { boardId: postId });
-        const post = this.posts.find(p => p.id === postId);
+        await api.post('/api/board/like', { boardId: postId })
+        const post = this.posts.find(p => p.id === postId)
         if (post) {
           post.isLiked = true
-          post.likes += 1;
+          post.likes += 1
         }
       } catch (error) {
-        console.error('좋아요 추가 중 오류 발생:', error);
+        console.error('좋아요 추가 중 오류 발생:', error)
       }
     },
     // 좋아요 취소
     async deleteLike(postId) {
       try {
-        await api.delete('/api/board/like', { data: { boardId: postId } });
-        const post = this.posts.find(p => p.id === postId);
+        await api.delete('/api/board/like', { data: { boardId: postId } })
+        const post = this.posts.find(p => p.id === postId)
         if (post) {
           post.isLiked = false
-          post.likes -= 1;
+          post.likes -= 1
         }
       } catch (error) {
-        console.error('좋아요 취소 중 오류 발생:', error);
+        console.error('좋아요 취소 중 오류 발생:', error)
       }
-    }
+    },
   },
 })
