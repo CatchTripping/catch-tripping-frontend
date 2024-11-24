@@ -114,8 +114,8 @@ export const usePostsStore = defineStore('posts', {
         const updatedPost = response.data; // 서버에서 반환된 최신 데이터
         const post = this.posts.find(p => p.id === postId);
         if (post) {
-          post.isLiked = updatedPost.isLiked; // 서버에서 확인된 값
-          post.likes = updatedPost.likes; // 서버에서 반환된 최신 좋아요 수
+          post.isLiked = true
+          post.likes = updatedPost.likesCount; // 서버에서 반환된 최신 좋아요 수
         }
       } catch (error) {
         console.error('좋아요 추가 중 오류 발생:', error);
@@ -128,8 +128,8 @@ export const usePostsStore = defineStore('posts', {
         const updatedPost = response.data;
         const post = this.posts.find(p => p.id === postId);
         if (post) {
-          post.isLiked = updatedPost.isLiked;
-          post.likes = updatedPost.likes;
+          post.isLiked = false
+          post.likes = updatedPost.likesCount;
         }
       } catch (error) {
         console.error('좋아요 취소 중 오류 발생:', error);

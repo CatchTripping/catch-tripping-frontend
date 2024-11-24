@@ -26,12 +26,12 @@ onMounted(() => {
 const toggleLike = async (post) => {
   try {
     if (post.isLiked) {
-      await postsStore.deleteLike(post.id); // 좋아요 취소
+      await postsStore.deleteLike(post.id);
     } else {
-      await postsStore.addLike(post.id); // 좋아요 추가
+      await postsStore.addLike(post.id);
     }
   } catch (error) {
-    console.error("좋아요 처리 오류:", error);
+    console.error('좋아요 처리 오류:', error);
   }
 };
 
