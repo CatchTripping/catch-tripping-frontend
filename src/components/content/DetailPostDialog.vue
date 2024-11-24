@@ -41,21 +41,21 @@ const fetchComments = async () => {
 const toggleReplies = async (parentId) => {
   if (showReplies.value[parentId]) {
     // 숨기기
-    showReplies.value[parentId] = false
+    showReplies.value[parentId] = false;
   } else {
     // 보이기
-    showReplies.value[parentId] = true
-    if (!childComments.value[parentId]) {
-      childComments.value[parentId] = []
+    showReplies.value[parentId] = true;
+    if (!childComments.value[parentId] || childComments.value[parentId].length === 0) {
       try {
-        const replies = await postsStore.fetchChildComments(parentId)
-        childComments.value[parentId] = replies
+        const replies = await postsStore.fetchChildComments(parentId);
+        childComments.value[parentId] = replies;
       } catch (error) {
-        console.error('대댓글 불러오기 오류:', error)
+        console.error('대댓글 불러오기 오류:', error);
       }
     }
   }
-}
+};
+
 
 watch(
   () => dialogStore.selectedPost,
@@ -90,47 +90,37 @@ const fetchChildComments = async (parentId) => {
 
 // 댓글 작성
 const handleComment = async () => {
-  if (!newComment.value.trim() || !selectedPost.value) return
+  if (!newComment.value.trim() || !selectedPost.value) return;
 
   try {
     if (selectedReply.value) {
       // 대댓글 작성
-      const replyContent = newComment.value.replace(/^@\S+\s/, "") // @닉네임 제거
+      const replyContent = newComment.value.replace(/^@\S+\s/, "")
       const reply = await postsStore.addChildComment(
         selectedPost.value.boardId,
         replyContent,
         selectedReply.value
       )
-      if (!childComments.value[selectedReply.value]) {
-        childComments.value[selectedReply.value] = []
+      if (reply === '댓글 저장 성공') {
+        toggleReplies(selectedReply.value)
       }
-      childComments.value[selectedReply.value].push(reply)
-      selectedReply.value = null
+      selectedReply.value = null // 답글 대상 초기화
     } else {
       // 일반 댓글 작성
-      const comment = await postsStore.addComment(selectedPost.value.boardId, newComment.value.trim())
-      comments.value.unshift(comment)
+      await postsStore.addComment(
+        selectedPost.value.boardId,
+        newComment.value.trim()
+      );
+      // 댓글 목록 다시 호출
+      comments.value = []; // 기존 댓글 초기화
+      currentPage.value = 1; // 페이지 초기화
+      await fetchComments(); // 댓글 다시 불러오기
     }
-    newComment.value = ''
+    newComment.value = ''; // 입력 필드 초기화
   } catch (error) {
-    console.error('댓글 작성 오류:', error)
+    console.error('댓글 작성 오류:', error);
   }
-}
-
-// // 대댓글 작성
-// const handleReply = async (parentId, replyContent) => {
-//   if (!replyContent.trim()) return
-//
-//   try {
-//     const reply = await postsStore.addChildComment(parentId, replyContent)
-//     if (!childComments.value[parentId]) {
-//       childComments.value[parentId] = { replies: [] }
-//     }
-//     childComments.value[parentId].replies.push(reply)
-//   } catch (error) {
-//     console.error('대댓글 작성 오류:', error)
-//   }
-// }
+};
 
 // 답글 달기 클릭
 const handleReplyClick = (userName, commentId) => {
@@ -210,23 +200,56 @@ const nextImage = () => {
         <!-- 댓글 표시 영역 -->
         <div class="flex flex-col flex-1">
           <!-- 댓글 영역 -->
-          <div class="flex-1 overflow-y-auto p-4">
+          <div class="flex-1 overflow-y-auto p-4 max-h-[492.4px]">
             <div v-for="comment in comments" :key="comment.commentId" class="mb-4">
               <div class="flex items-start gap-2">
-                <img class="h-8 w-8 rounded-full" :src="comment.profileImage || defaultAvatar" alt="User Avatar" />
+                <img
+                  class="h-8 w-8 rounded-full"
+                  :src="comment.profileImage || defaultAvatar"
+                  alt="User Avatar"
+                />
                 <div>
                   <div>
                     <span class="font-semibold text-sm">{{ comment.userName }}</span>
                     <span class="text-sm">{{ comment.content }}</span>
                   </div>
                   <div class="text-xs text-muted-foreground">{{ comment.createdAt }}</div>
-                  <button @click="handleReplyClick(comment.userName, comment.commentId)" class="text-xs text-blue-500">답글 달기</button>
-                  <button @click="toggleReplies(comment.commentId)" class="text-xs text-blue-500">
-                    {{ showReplies[comment.commentId] ? '답글 숨기기' : '답글 보기' }}
-                  </button>
+                  <div class="flex flex-col gap-1 mt-2">
+                    <!-- 답글 달기 -->
+                    <div>
+                      <button
+                        @click="handleReplyClick(comment.userName, comment.commentId)"
+                        class="text-xs font-bold text-gray-500"
+                      >
+                        답글 달기
+                      </button>
+                    </div>
+                    <!-- 답글 보기 -->
+                    <div
+                      v-if="comment.childCommentCount > 0"
+                      class="flex items-center gap-2"
+                    >
+                      <span class="h-px w-8 bg-gray-400"></span>
+                      <button
+                        @click="toggleReplies(comment.commentId)"
+                        class="text-xs font-bold text-gray-500"
+                      >
+                        {{ showReplies[comment.commentId] ? '답글 숨기기' : `답글 보기(${comment.childCommentCount})` }}
+                      </button>
+                    </div>
+                  </div>
+
                   <div v-if="showReplies[comment.commentId]">
-                    <div v-for="reply in childComments[comment.commentId]" :key="reply.commentId" class="flex items-start gap-2 mt-2">
-                      <img class="h-8 w-8 rounded-full" :src="reply.profileImage || defaultAvatar" alt="User Avatar" />
+                    <div
+                      v-for="reply in childComments[comment.commentId]"
+                      :key="reply.commentId"
+                      class="flex items-start gap-2 mt-2"
+                    >
+                      <img
+                        class="h-8 w-8 rounded-full"
+                        :src="reply.profileImage || defaultAvatar"
+                        alt="User Avatar"
+                      />
                       <div>
                         <span class="font-semibold text-sm">{{ reply.userName }}</span>
                         <span class="text-sm">{{ reply.content }}</span>
@@ -236,9 +259,10 @@ const nextImage = () => {
                 </div>
               </div>
             </div>
-            <button v-if="isLoadingComments" class="text-sm">댓글 불러오는 중...</button>
+            <button v-if="isLoadingComments" class="text-sm">
+              댓글 불러오는 중...
+            </button>
           </div>
-
           <!-- 댓글 입력 -->
           <footer class="p-4 border-t flex items-center gap-2">
             <button>

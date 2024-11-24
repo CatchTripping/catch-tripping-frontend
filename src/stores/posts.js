@@ -52,7 +52,7 @@ export const usePostsStore = defineStore('posts', {
             images: post.imageUrls,
             likes: post.likesCount,
             caption: post.content,
-            isLiked: post.isLiked,
+            isLiked: post.isLikedByLogInUser,
             comments: [],
           })),
         )
@@ -100,8 +100,40 @@ export const usePostsStore = defineStore('posts', {
     },
 
     async addChildComment(boardId, content, parentId) {
-      const response = await api.post(`/api/comment`, { boardId, content, parentCommentId: parentId })
-      return response.data
+      const response = await api.post(`/api/comment`, {
+        boardId,
+        content,
+        parentCommentId: parentId,
+      });
+      return response.data // 작성된 답글 데이터를 반환
     },
+    // 좋아요 추가
+    async addLike(postId) {
+      try {
+        const response = await api.post('/api/board/like', { boardId: postId });
+        const updatedPost = response.data; // 서버에서 반환된 최신 데이터
+        const post = this.posts.find(p => p.id === postId);
+        if (post) {
+          post.isLiked = updatedPost.isLiked; // 서버에서 확인된 값
+          post.likes = updatedPost.likes; // 서버에서 반환된 최신 좋아요 수
+        }
+      } catch (error) {
+        console.error('좋아요 추가 중 오류 발생:', error);
+      }
+    },
+    // 좋아요 취소
+    async deleteLike(postId) {
+      try {
+        const response = await api.delete('/api/board/like', { data: { boardId: postId } });
+        const updatedPost = response.data;
+        const post = this.posts.find(p => p.id === postId);
+        if (post) {
+          post.isLiked = updatedPost.isLiked;
+          post.likes = updatedPost.likes;
+        }
+      } catch (error) {
+        console.error('좋아요 취소 중 오류 발생:', error);
+      }
+    }
   },
 })
