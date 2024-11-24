@@ -50,6 +50,7 @@ const AITravelContent = defineAsyncComponent(
 )
 import { useUserStore } from '@/stores/user'
 import { useDialogStore } from '@/stores/dialog'
+import defaultAvatar from '@/assets/no_picture.png'
 
 // 유저 정보 및 로그아웃 함수 정의
 const userStore = useUserStore()
@@ -220,7 +221,7 @@ onBeforeUnmount(() => {
           @click="setActiveMenu('profile')"
         >
           <img
-            src="@/assets/no_picture.png"
+            :src="userInfo?.profileImage || defaultAvatar"
             alt="User"
             class="w-10 h-10 rounded-full"
           />

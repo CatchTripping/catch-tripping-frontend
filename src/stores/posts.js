@@ -6,6 +6,7 @@ import defaultAvatar from '@/assets/no_picture.png'
 export const usePostsStore = defineStore('posts', {
   state: () => ({
     posts: [],
+    myPosts: [], // 내가 작성한 게시물
     currentSlides: [], // 슬라이드 상태 관리
     page: 1,
     size: 10,
@@ -15,9 +16,16 @@ export const usePostsStore = defineStore('posts', {
 
   getters: {
     getPosts: state => state.posts,
+    getMyPosts: state => state.myPosts,
   },
 
   actions: {
+    resetMyPosts() {
+      this.myPosts = []
+      this.page = 1
+      this.hasMore = true
+      this.isLoading = false
+    },
     resetPosts() {
       this.posts = []
       this.page = 1
@@ -62,6 +70,41 @@ export const usePostsStore = defineStore('posts', {
         this.page += 1
       } catch (error) {
         console.error('게시물 불러오기 중 오류 발생:', error)
+      } finally {
+        this.isLoading = false
+      }
+    },
+
+    async fetchMyPosts() {
+      if (this.isLoading || !this.hasMore) return
+
+      this.isLoading = true
+      try {
+        const response = await api.get('/api/myBoard', {
+          params: { page: this.page, size: this.size },
+        })
+
+        const fetchedMyPosts = response.data
+
+        if (fetchedMyPosts.length < this.size) {
+          this.hasMore = false
+        }
+
+        this.myPosts.push(
+          ...fetchedMyPosts.map(post => ({
+            id: post.boardId,
+            username: post.userName,
+            avatar: post?.profileImage || defaultAvatar,
+            timeAgo: `${post.createdDate} ${post.createdAt}`,
+            images: post.imageUrls,
+            likes: post.likesCount,
+            caption: post.content,
+            isLiked: post.isLikedByLogInUser,
+          })),
+        )
+        this.page += 1
+      } catch (error) {
+        console.error('내 게시물 불러오기 중 오류 발생:', error)
       } finally {
         this.isLoading = false
       }
