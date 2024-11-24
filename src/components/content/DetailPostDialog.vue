@@ -87,21 +87,11 @@ watch(
 
 // 대댓글 불러오기
 const fetchChildComments = async (parentId) => {
-  if (childComments.value[parentId]?.isLoading) return
-
-  if (!childComments.value[parentId]) {
-    childComments.value[parentId] = { replies: [], isLoading: true }
-  } else {
-    childComments.value[parentId].isLoading = true
-  }
-
   try {
-    const replies = await postsStore.fetchChildComments(parentId)
-    childComments.value[parentId].replies = replies
+    const replies = await postsStore.fetchChildComments(parentId);
+    childComments.value[parentId] = replies;
   } catch (error) {
-    console.error('대댓글 불러오기 오류:', error)
-  } finally {
-    childComments.value[parentId].isLoading = false
+    console.error("대댓글 불러오기 오류:", error);
   }
 }
 
@@ -119,9 +109,24 @@ const handleComment = async () => {
         selectedReply.value
       )
       if (reply === '댓글 저장 성공') {
-        toggleReplies(selectedReply.value)
+        // 답글 보기 상태 확인 후 처리
+        if (!showReplies.value[selectedReply.value]) {
+          showReplies.value[selectedReply.value] = true; // 답글 보기 상태로 설정
+        }
+
+        // 답글 목록 갱신
+        await fetchChildComments(selectedReply.value);
+
+        // 답글 개수 증가
+        const parentComment = comments.value.find(
+          (comment) => comment.commentId === selectedReply.value
+        );
+        if (parentComment) {
+          parentComment.childCommentCount += 1;
+        }
+
+        selectedReply.value = null; // 답글 대상 초기화
       }
-      selectedReply.value = null // 답글 대상 초기화
     } else {
       // 일반 댓글 작성
       await postsStore.addComment(
@@ -175,14 +180,18 @@ const nextImage = () => {
         />
         <button
           v-if="currentImageIndex > 0"
-          class="absolute left-2 top-1/2 -translate-y-1/2 bg-background/80"
+          variant="ghost"
+          size="icon"
+          class="absolute left-2 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md"
           @click="prevImage"
         >
           <ChevronLeft class="h-4 w-4" />
         </button>
         <button
           v-if="currentImageIndex < selectedPost.imageUrls.length - 1"
-          class="absolute right-2 top-1/2 -translate-y-1/2 bg-background/80"
+          variant="ghost"
+          size="icon"
+          class="absolute right-2 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md"
           @click="nextImage"
         >
           <ChevronRight class="h-4 w-4" />
