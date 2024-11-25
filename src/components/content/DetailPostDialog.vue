@@ -1,13 +1,25 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { ChevronLeft, ChevronRight, Smile, Heart } from 'lucide-vue-next'
+import {
+  ChevronLeft,
+  ChevronRight,
+  Smile,
+  Heart,
+  MoreHorizontal,
+} from 'lucide-vue-next'
+import { useUserStore } from '@/stores/user.js'
 import { useDialogStore } from '@/stores/dialog'
 import { usePostsStore } from '@/stores/posts.js'
+import { Button } from '@/components/ui/button/index.js'
 import defaultAvatar from '@/assets/no_picture.png'
+import OptionMenu from '@/components/content/OptionMenu.vue'
+import { formatPostData } from '@/utils/formatPostData.js'
 
 const dialogStore = useDialogStore()
 const postsStore = usePostsStore()
 const selectedPost = computed(() => dialogStore.selectedPost)
+const userStore = useUserStore()
+const userInfo = userStore.userInfo
 
 const currentImageIndex = ref(0)
 const newComment = ref('')
@@ -17,6 +29,7 @@ const childComments = ref({})
 const currentPage = ref(1)
 const isLoadingComments = ref(false)
 const showReplies = ref({}) // 답글 보이기 상태
+const showOptionsMenu = ref(false)
 
 // 좋아요 추가 및 취소 처리
 const toggleLike = async () => {
@@ -37,7 +50,7 @@ const toggleLike = async () => {
 
 // 댓글 불러오기
 const fetchComments = async () => {
-  if (!selectedPost.value) return
+  if (!selectedPost.value || isLoadingComments.value) return // 방어
 
   isLoadingComments.value = true
   try {
@@ -79,12 +92,13 @@ const toggleReplies = async parentId => {
 watch(
   () => dialogStore.selectedPost,
   async post => {
-    if (post) {
-      comments.value = [] // 이전 댓글 초기화
-      currentPage.value = 1 // 페이지 초기화
-      await fetchComments()
-    }
+    // EditPostDialog가 열려있으면 댓글 API 호출 방지
+    if (!post || dialogStore.isEditPostDialogOpen) return
+    comments.value = [] // 이전 댓글 초기화
+    currentPage.value = 1 // 페이지 초기화
+    await fetchComments() // 댓글 가져오기
   },
+  { immediate: true },
 )
 
 // 대댓글 불러오기
@@ -163,6 +177,28 @@ const nextImage = () => {
     currentImageIndex.value++
   }
 }
+
+const onMoreClick = () => {
+  showOptionsMenu.value = !showOptionsMenu.value
+}
+
+const handleEditPost = () => {
+  const formattedPost = formatPostData(selectedPost.value)
+  dialogStore.openEditPostDialog(formattedPost)
+  showOptionsMenu.value = false
+}
+
+const handleDeletePost = async () => {
+  try {
+    await postsStore.deletePost(selectedPost.value.boardId)
+    dialogStore.closeDetailPostDialog()
+    // 게시물 목록 갱신
+    postsStore.resetPosts()
+    await postsStore.fetchPosts()
+  } catch (error) {
+    console.error('게시물 삭제 중 오류 발생:', error)
+  }
+}
 </script>
 
 <template>
@@ -171,10 +207,10 @@ const nextImage = () => {
     class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
   >
     <div
-      class="bg-white rounded-lg shadow-lg w-full max-w-4xl flex flex-col md:flex-row"
+      class="bg-white rounded-lg shadow-lg w-full max-w-4xl flex flex-col md:flex-row h-[600px]"
     >
       <!-- 이미지 슬라이더 -->
-      <div class="relative md:w-[600px] aspect-square">
+      <div class="relative md:w-[600px] h-full">
         <img
           :src="selectedPost.imageUrls[currentImageIndex]"
           alt="Post image"
@@ -182,18 +218,14 @@ const nextImage = () => {
         />
         <button
           v-if="currentImageIndex > 0"
-          variant="ghost"
-          size="icon"
-          class="absolute left-2 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md"
+          class="absolute left-2 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md focus:outline-none"
           @click="prevImage"
         >
           <ChevronLeft class="h-4 w-4" />
         </button>
         <button
           v-if="currentImageIndex < selectedPost.imageUrls.length - 1"
-          variant="ghost"
-          size="icon"
-          class="absolute right-2 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md"
+          class="absolute right-2 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md focus:outline-none"
           @click="nextImage"
         >
           <ChevronRight class="h-4 w-4" />
@@ -202,33 +234,60 @@ const nextImage = () => {
 
       <!-- 게시물 정보 -->
       <div class="flex flex-col flex-1">
+        <!-- 헤더 -->
         <header class="p-4 border-b flex justify-between items-center">
-          <div class="flex items-center space-x-2">
+          <div class="flex items-center gap-2">
             <img
               class="h-8 w-8 rounded-full"
               :src="selectedPost.profileImage || defaultAvatar"
               alt="User Avatar"
             />
             <div>
-              <h2 class="font-semibold text-sm">
-                {{ selectedPost.userName }}
-              </h2>
+              <h2 class="font-semibold text-sm">{{ selectedPost.userName }}</h2>
             </div>
           </div>
-          <button class="ml-auto" @click="dialogStore.closeDetailPostDialog">
-            닫기
-          </button>
+          <div>
+            <button
+              v-if="selectedPost.userName === userInfo?.userName"
+              class="focus:outline-none mr-2"
+              @click="onMoreClick"
+            >
+              <MoreHorizontal class="h-5 w-5" />
+            </button>
+            <!-- 옵션 메뉴 -->
+            <OptionMenu
+              :isOpen="showOptionsMenu"
+              @edit="handleEditPost"
+              @delete="handleDeletePost"
+              @close="onMoreClick"
+            />
+            <button
+              class="ml-auto text-gray-500 focus:outline-none"
+              @click="dialogStore.closeDetailPostDialog"
+            >
+              닫기
+            </button>
+          </div>
         </header>
 
-        <!-- 게시물 내용 표시 -->
-        <div class="p-4">
-          <p>{{ selectedPost.content }}</p>
+        <!-- 게시물 내용 -->
+        <div class="flex items-start gap-2 p-4">
+          <img
+            class="h-8 w-8 rounded-full"
+            :src="selectedPost.profileImage || defaultAvatar"
+            alt="User Avatar"
+          />
+          <div>
+            <span class="font-semibold text-sm pr-2">{{
+              selectedPost.userName
+            }}</span>
+            <span class="text-sm">{{ selectedPost.content }}</span>
+          </div>
         </div>
 
-        <!-- 댓글 표시 영역 -->
+        <!-- 댓글 영역 -->
         <div class="flex flex-col flex-1">
-          <!-- 댓글 영역 -->
-          <div class="flex-1 overflow-y-auto p-4 max-h-[492.4px]">
+          <div class="flex-1 overflow-y-auto p-4 max-h-[382.4px]">
             <div
               v-for="comment in comments"
               :key="comment.commentId"
@@ -242,12 +301,12 @@ const nextImage = () => {
                 />
                 <div>
                   <div>
-                    <span class="font-semibold text-sm">{{
+                    <span class="font-semibold text-sm pr-2">{{
                       comment.userName
                     }}</span>
                     <span class="text-sm">{{ comment.content }}</span>
                   </div>
-                  <div class="text-xs text-muted-foreground">
+                  <div class="text-xs text-gray-500">
                     {{ comment.createdAt }}
                   </div>
                   <div class="flex flex-col gap-1 mt-2">
@@ -257,7 +316,7 @@ const nextImage = () => {
                         @click="
                           handleReplyClick(comment.userName, comment.commentId)
                         "
-                        class="text-xs font-bold text-gray-500"
+                        class="text-xs font-bold text-gray-500 focus:outline-none"
                       >
                         답글 달기
                       </button>
@@ -270,7 +329,7 @@ const nextImage = () => {
                       <span class="h-px w-8 bg-gray-400"></span>
                       <button
                         @click="toggleReplies(comment.commentId)"
-                        class="text-xs font-bold text-gray-500"
+                        class="text-xs font-bold text-gray-500 focus:outline-none"
                       >
                         {{
                           showReplies[comment.commentId]
@@ -293,7 +352,7 @@ const nextImage = () => {
                         alt="User Avatar"
                       />
                       <div>
-                        <span class="font-semibold text-sm">{{
+                        <span class="font-semibold text-sm pr-2">{{
                           reply.userName
                         }}</span>
                         <span class="text-sm">{{ reply.content }}</span>
@@ -303,32 +362,44 @@ const nextImage = () => {
                 </div>
               </div>
             </div>
-            <button v-if="isLoadingComments" class="text-sm">
+            <button
+              v-if="isLoadingComments"
+              class="text-sm text-gray-500 focus:outline-none"
+            >
               댓글 불러오는 중...
             </button>
           </div>
-          <!-- 좋아요 및 댓글 아이콘 -->
-          <div class="p-4 flex items-center gap-4">
-            <button @click="toggleLike">
-              <Heart
-                class="h-6 w-6"
-                :class="{ 'fill-black': selectedPost.isLikedByLogInUser }"
+          <!-- 좋아요 및 댓글 입력 -->
+          <div class="p-4 border-t">
+            <div class="flex items-center gap-4 mb-2">
+              <button class="focus:outline-none" @click="toggleLike">
+                <Heart
+                  class="h-6 w-6"
+                  :class="{ 'fill-black': selectedPost.isLikedByLogInUser }"
+                />
+              </button>
+              <span class="text-sm text-gray-700"
+                >좋아요 {{ selectedPost.likesCount }}개</span
+              >
+            </div>
+            <footer class="flex items-center gap-2">
+              <button class="focus:outline-none">
+                <Smile class="h-5 w-5 text-gray-500" />
+              </button>
+              <input
+                v-model="newComment"
+                placeholder="댓글 달기..."
+                class="flex-1 border-0 focus:ring-0 focus:outline-none"
               />
-            </button>
-            <span>좋아요 {{ selectedPost.likesCount }}개</span>
+              <button
+                class="text-blue-500 text-sm focus:outline-none"
+                :disabled="!newComment"
+                @click="handleComment"
+              >
+                게시
+              </button>
+            </footer>
           </div>
-          <!-- 댓글 입력 -->
-          <footer class="p-4 border-t flex items-center gap-2">
-            <button>
-              <Smile class="h-5 w-5" />
-            </button>
-            <input
-              v-model="newComment"
-              placeholder="댓글 달기..."
-              class="flex-1 border-0 focus-visible:ring-0"
-            />
-            <button :disabled="!newComment" @click="handleComment">게시</button>
-          </footer>
         </div>
       </div>
     </div>
