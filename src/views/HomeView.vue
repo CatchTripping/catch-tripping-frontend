@@ -3,14 +3,13 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import {
   ChevronLeft,
-  HelpCircle,
   Home,
   Map,
   MapPinned,
   Footprints,
   BotMessageSquare,
   ImagePlus,
-  Settings,
+  Shell,
 } from 'lucide-vue-next'
 
 import { defineAsyncComponent } from 'vue'
@@ -21,17 +20,11 @@ const HomeContent = defineAsyncComponent(
 const MapContent = defineAsyncComponent(
   () => import('@/components/content/MapContent.vue'),
 )
-const HelpContent = defineAsyncComponent(
-  () => import('@/components/content/HelpContent.vue'),
-)
 const BottomNavigation = defineAsyncComponent(
   () => import('@/components/content/BottomNavigation.vue'),
 )
 const ProfileContent = defineAsyncComponent(
   () => import('@/components/content/ProfileContent.vue'),
-)
-const SettingsContent = defineAsyncComponent(
-  () => import('@/components/content/SettingsContent.vue'),
 )
 const RegionContent = defineAsyncComponent(
   () => import('@/components/content/RegionContent.vue'),
@@ -77,10 +70,6 @@ const renderContent = computed(() => {
       return CourseContent
     case 'ai':
       return AITravelContent
-    case 'settings':
-      return SettingsContent
-    case 'help':
-      return HelpContent
     default:
       return HomeContent
   }
@@ -122,8 +111,9 @@ onBeforeUnmount(() => {
       ]"
     >
       <div :class="['p-4 border-b flex items-center', 'justify-start']">
-        <h1 v-if="isCollapsed" class="text-2xl font-bold">CT</h1>
-        <h1 v-else class="text-2xl font-bold">CatchTrip</h1>
+        <!--        <h1 v-if="isCollapsed" class="text-2xl font-bold">CT</h1>-->
+        <Shell v-if="isCollapsed" :size="32" class="text-pink-400" />
+        <h1 v-else class="text-2xl font-bold text-pink-400">CatchTrip</h1>
       </div>
       <nav class="flex-grow">
         <ul class="p-2 space-y-2">
@@ -192,26 +182,6 @@ onBeforeUnmount(() => {
               <span v-if="!isCollapsed" class="ml-2">만들기</span>
             </Button>
           </li>
-          <li>
-            <Button
-              :variant="activeMenu === 'settings' ? 'secondary' : 'ghost'"
-              class="w-full justify-start"
-              @click="setActiveMenu('settings')"
-            >
-              <Settings class="h-4 w-4" />
-              <span v-if="!isCollapsed" class="ml-2">설정</span>
-            </Button>
-          </li>
-          <li>
-            <Button
-              :variant="activeMenu === 'help' ? 'secondary' : 'ghost'"
-              class="w-full justify-start"
-              @click="setActiveMenu('help')"
-            >
-              <HelpCircle class="h-4 w-4" />
-              <span v-if="!isCollapsed" class="ml-2">도움말</span>
-            </Button>
-          </li>
         </ul>
       </nav>
       <div class="p-3 border-t flex justify-center">
@@ -253,17 +223,13 @@ onBeforeUnmount(() => {
         v-if="isMobile"
         class="bg-white shadow-sm p-4 flex items-center justify-between flex-shrink-0"
       >
-        <h1 class="text-xl font-semibold">CatchTrip</h1>
+        <h1 class="text-xl font-semibold text-pink-400">CatchTrip</h1>
         <div class="flex items-center space-x-2">
-          <Button
-            size="icon"
-            variant="ghost"
-            @click="setActiveMenu('settings')"
-          >
-            <Settings class="h-5 w-5" />
+          <Button size="icon" variant="ghost" @click="setActiveMenu('course')">
+            <Footprints class="h-5 w-5" />
           </Button>
-          <Button size="icon" variant="ghost" @click="setActiveMenu('help')">
-            <HelpCircle class="h-5 w-5" />
+          <Button size="icon" variant="ghost" @click="setActiveMenu('ai')">
+            <BotMessageSquare class="h-5 w-5" />
           </Button>
         </div>
       </header>

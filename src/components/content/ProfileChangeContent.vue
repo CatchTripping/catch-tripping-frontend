@@ -13,19 +13,19 @@ import api from '../../axios.js'
 import { useUserStore } from '@/stores/user' // 주신 userStore
 
 const open = ref(false)
-const photo = ref('/placeholder.svg')
+const photo = ref('/assets/no_picture.png')
 const isLoading = ref(false)
 const error = ref(null)
 const userStore = useUserStore()
 
 // 초기 프로필 이미지 설정
-photo.value = userStore.userInfo?.profileImage || '/placeholder.svg'
+photo.value = userStore.userInfo?.profileImage || '/assets/no_picture.png'
 
 // 사용자 정보 업데이트 함수
 const updateUserInfo = async () => {
   const success = await userStore.getUserInfo()
   if (success) {
-    photo.value = userStore.userInfo?.profileImage || '/placeholder.svg'
+    photo.value = userStore.userInfo?.profileImage || '/assets/no_picture.png'
   } else {
     console.error('사용자 정보를 업데이트하는 데 실패했습니다.')
   }
@@ -89,7 +89,7 @@ const handlePhotoDelete = async () => {
     await updateUserInfo()
 
     // 프로필 이미지 초기화
-    photo.value = '/placeholder.svg'
+    photo.value = '/assets/no_picture.png'
     open.value = false
   } catch (err) {
     console.error('프로필 이미지 삭제 중 오류 발생:', err)
