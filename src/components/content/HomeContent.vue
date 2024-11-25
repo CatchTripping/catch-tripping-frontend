@@ -1,8 +1,12 @@
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useUserStore } from '@/stores/user.js'
 import { usePostsStore } from '@/stores/posts.js'
 import { useDialogStore } from '@/stores/dialog.js'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import OptionMenu from '@/components/content/OptionMenu.vue'
+
 import {
   ChevronLeft,
   ChevronRight,
@@ -11,8 +15,11 @@ import {
   MoreHorizontal,
 } from 'lucide-vue-next'
 
+const userStore = useUserStore()
+const userInfo = userStore.userInfo
 const postsStore = usePostsStore()
 const dialogStore = useDialogStore()
+const showOptionsMenu = ref(null)
 
 // 상태 계산: 슬라이드 상태는 Pinia의 상태와 동기화
 const currentSlides = computed(() => postsStore.currentSlides)
@@ -41,8 +48,23 @@ const handleSlideChange = (postIndex, direction) => {
 }
 
 // 더보기 버튼 클릭 이벤트 (추후 구현 가능)
-const onMoreClick = () => {
-  console.log('더보기 버튼 클릭')
+const onMoreClick = post => {
+  showOptionsMenu.value = showOptionsMenu.value === post.id ? null : post.id
+}
+
+const handleEditPost = post => {
+  console.log('handleEditPost called with post:', post) // 디버깅 로그
+  dialogStore.openEditPostDialog(post)
+  console.log('isEditPostDialogOpen:', dialogStore.isEditPostDialogOpen) // 상태 확인
+}
+
+const handleDeletePost = async post => {
+  try {
+    await postsStore.deletePost(post.id)
+    showOptionsMenu.value = null
+  } catch (error) {
+    console.error('게시물 삭제 중 오류 발생:', error)
+  }
 }
 </script>
 
@@ -66,12 +88,20 @@ const onMoreClick = () => {
             <span class="text-muted-foreground">• {{ post.timeAgo }}</span>
           </div>
           <Button
+            v-if="post.username === userInfo?.userName"
             variant="ghost"
             size="icon"
             class="ml-auto"
-            @click="onMoreClick"
+            @click="onMoreClick(post)"
           >
             <MoreHorizontal class="h-5 w-5" />
+            <!-- 옵션 메뉴 -->
+            <OptionMenu
+              :isOpen="showOptionsMenu === post.id"
+              @edit="handleEditPost(post)"
+              @delete="handleDeletePost(post)"
+              @close="onMoreClick(null)"
+            />
           </Button>
         </CardHeader>
 

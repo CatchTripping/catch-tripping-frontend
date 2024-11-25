@@ -46,7 +46,6 @@ export const usePostsStore = defineStore('posts', {
 
         const fetchedPosts = response.data
 
-        console.log(fetchedPosts)
         if (fetchedPosts.length < this.size) {
           this.hasMore = false
         }
@@ -124,12 +123,16 @@ export const usePostsStore = defineStore('posts', {
       }
     },
     async fetchParentComments(boardId, page = 1, size = 20) {
-      const response = await api.get(`/api/comment/${boardId}`, {
-        params: { page, size },
-      })
-      return response.data
+      try {
+        const response = await api.get(`/api/comment/${boardId}`, {
+          params: { page, size },
+        })
+        return response.data
+      } catch (error) {
+        console.error('댓글 불러오기 오류:', error)
+        throw error
+      }
     },
-
     async fetchChildComments(parentId, page = 1, size = 20) {
       const response = await api.get(
         `/api/comment/child-comments/${parentId}`,
@@ -177,6 +180,26 @@ export const usePostsStore = defineStore('posts', {
         }
       } catch (error) {
         console.error('좋아요 취소 중 오류 발생:', error)
+      }
+    },
+    updatePost(updatedPostData) {
+      const index = this.posts.findIndex(
+        post => post.id === updatedPostData.boardId,
+      )
+      if (index !== -1) {
+        this.posts[index] = {
+          ...this.posts[index],
+          caption: updatedPostData.content, // 수정된 내용 반영
+        }
+      }
+    },
+    async deletePost(postId) {
+      try {
+        await api.delete(`/api/board/${postId}`)
+        this.posts = this.posts.filter(post => post.id !== postId)
+      } catch (error) {
+        console.error('게시물 삭제 중 오류 발생:', error)
+        throw error
       }
     },
   },

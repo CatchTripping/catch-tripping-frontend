@@ -5,6 +5,7 @@ export const useDialogStore = defineStore('dialog', {
   state: () => ({
     isCreatePostDialogOpen: false,
     isDetailPostDialogOpen: false,
+    isEditPostDialogOpen: false,
     selectedPostId: null,
     selectedPost: null,
   }),
@@ -31,6 +32,18 @@ export const useDialogStore = defineStore('dialog', {
     closeDetailPostDialog() {
       this.isDetailPostDialogOpen = false
       this.selectedPostId = null
+      this.selectedPost = null
+    },
+    openEditPostDialog(post) {
+      console.log('openEditPostDialog called with post:', post)
+      this.isEditPostDialogOpen = true
+      this.selectedPost = {
+        ...post,
+      }
+      console.log('selectedPost after update:', this.selectedPost)
+    },
+    closeEditPostDialog() {
+      this.isEditPostDialogOpen = false
       this.selectedPost = null
     },
   },
