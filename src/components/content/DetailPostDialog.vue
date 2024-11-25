@@ -13,6 +13,7 @@ import { usePostsStore } from '@/stores/posts.js'
 import { Button } from '@/components/ui/button/index.js'
 import defaultAvatar from '@/assets/no_picture.png'
 import OptionMenu from '@/components/content/OptionMenu.vue'
+import { formatPostData } from '@/utils/formatPostData.js'
 
 const dialogStore = useDialogStore()
 const postsStore = usePostsStore()
@@ -182,7 +183,8 @@ const onMoreClick = () => {
 }
 
 const handleEditPost = () => {
-  dialogStore.openEditPostDialog(selectedPost.value)
+  const formattedPost = formatPostData(selectedPost.value)
+  dialogStore.openEditPostDialog(formattedPost)
   showOptionsMenu.value = false
 }
 

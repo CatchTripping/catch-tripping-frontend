@@ -1,10 +1,11 @@
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useUserStore } from '@/stores/user.js'
 import { usePostsStore } from '@/stores/posts.js'
 import { useDialogStore } from '@/stores/dialog.js'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { formatPostData } from '@/utils/formatPostData.js'
 import OptionMenu from '@/components/content/OptionMenu.vue'
 
 import {
@@ -54,7 +55,8 @@ const onMoreClick = post => {
 
 const handleEditPost = post => {
   console.log('handleEditPost called with post:', post) // 디버깅 로그
-  dialogStore.openEditPostDialog(post)
+  const formattedPost = formatPostData(post)
+  dialogStore.openEditPostDialog(formattedPost)
   console.log('isEditPostDialogOpen:', dialogStore.isEditPostDialogOpen) // 상태 확인
 }
 
