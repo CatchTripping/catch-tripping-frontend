@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useDialogStore } from '@/stores/dialog'
 import { usePostsStore } from '@/stores/posts'
 import { useUserStore } from '@/stores/user'
@@ -36,6 +36,11 @@ onMounted(async () => {
 const openPostDialog = postId => {
   dialogStore.openDetailPostDialog(postId) // 상세 Dialog 열기
 }
+
+// 프로필 편집으로 이동
+const goToEditProfile = () => {
+  router.push('/edit-profile')
+}
 </script>
 
 <template>
@@ -55,7 +60,7 @@ const openPostDialog = postId => {
           <h1 class="text-xl font-semibold">
             {{ userInfo?.userName || '사용자 이름' }}
           </h1>
-          <Button>프로필 편집</Button>
+          <Button @click="goToEditProfile">프로필 편집</Button>
           <Button variant="destructive" @click="logout">
             <LogOut class="mr-2 h-4 w-4" />
             로그아웃
@@ -75,7 +80,7 @@ const openPostDialog = postId => {
     <!-- 내 게시물 리스트 -->
     <div class="grid grid-cols-3 gap-1 md:gap-1">
       <button
-        v-for="(post, index) in myPosts"
+        v-for="post in myPosts"
         :key="post.id"
         class="relative aspect-square w-full overflow-hidden"
         @click="openPostDialog(post.id)"

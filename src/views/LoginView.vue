@@ -78,7 +78,7 @@ const login = async () => {
           to="/signup"
           class="text-blue-500 font-semibold hover:underline"
         >
-          >가입하기</router-link
+          가입하기</router-link
         >
       </p>
     </div>

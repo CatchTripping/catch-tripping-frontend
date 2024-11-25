@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '@/views/LoginView.vue'
 import SignupView from '@/views/SignupView.vue'
 import { useUserStore } from '@/stores/user.js'
+import ProfileChangeContent from '@/components/content/ProfileChangeContent.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -31,6 +32,11 @@ const router = createRouter({
       name: 'signup',
       component: SignupView,
       meta: { requiresGuest: true },
+    },
+    {
+      path: '/edit-profile',
+      name: 'EditProfile',
+      component: ProfileChangeContent, // 프로필 편집 컴포넌트
     },
   ],
 })
