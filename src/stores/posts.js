@@ -9,7 +9,7 @@ export const usePostsStore = defineStore('posts', {
     myPosts: [], // 내가 작성한 게시물
     currentSlides: [], // 슬라이드 상태 관리
     page: 1,
-    size: 10,
+    size: 1000,
     hasMore: true,
     isLoading: false,
   }),
