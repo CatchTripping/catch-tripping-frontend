@@ -78,7 +78,7 @@ export const usePostsStore = defineStore('posts', {
       this.isLoading = true
       try {
         const response = await api.get('/api/myBoard', {
-          params: { page: this.page, size: this.size },
+          params: { page: this.page, size: 10 },
         })
 
         const fetchedMyPosts = response.data
