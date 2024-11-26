@@ -50,7 +50,6 @@ import defaultAvatar from '@/assets/no_picture.png'
 
 // 유저 정보 및 로그아웃 함수 정의
 const userStore = useUserStore()
-const userInfo = userStore.userInfo // userInfo 상태 가져오기
 
 const dialogStore = useDialogStore()
 
@@ -194,12 +193,12 @@ onBeforeUnmount(() => {
           @click="setActiveMenu('profile')"
         >
           <img
-            :src="userInfo?.profileImage || defaultAvatar"
+            :src="userStore.userInfo?.profileImage || defaultAvatar"
             alt="User"
             class="w-10 h-10 rounded-full"
           />
           <span v-if="!isCollapsed" class="ml-2">{{
-            userInfo?.userName || '귀여운 토끼'
+            userStore.userInfo?.userName || '귀여운 토끼'
           }}</span>
         </Button>
       </div>

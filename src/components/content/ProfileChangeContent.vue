@@ -228,7 +228,9 @@ const closeEditProfileDialog = () => {
               />
             </div>
             <div class="flex flex-col">
-              <span class="font-medium">{{ userStore.userInfo?.userName }}</span>
+              <span class="font-medium">{{
+                userStore.userInfo?.userName
+              }}</span>
               <Button
                 variant="link"
                 class="text-blue-500 p-0 h-auto font-normal justify-start"

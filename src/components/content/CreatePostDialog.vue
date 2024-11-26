@@ -6,13 +6,14 @@ import {
   ChevronLeft,
   X,
   ChevronRight,
-  MapPin,
   Loader2,
 } from 'lucide-vue-next'
 import { useUserStore } from '@/stores/user.js'
 import { useDialogStore } from '@/stores/dialog'
 import api from '../../axios.js'
 import { Button } from '@/components/ui/button'
+import { usePostsStore } from '@/stores/posts.js'
+import defaultAvatar from '@/assets/no_picture.png'
 
 const dialogStore = useDialogStore()
 const userStore = useUserStore()
@@ -123,6 +124,7 @@ const handlePost = async () => {
     // 성공 시 초기화 및 다이얼로그 닫기
     resetPostDialog()
     dialogStore.closeCreatePostDialog()
+    await usePostsStore().fetchPosts()
   } catch (error) {
     console.error('게시물 생성 중 오류 발생:', error)
     // 에러 처리 로직 추가 (예: 알림 표시)
@@ -155,7 +157,9 @@ const closeCreatePostDialog = () => {
     v-if="dialogStore.isCreatePostDialogOpen"
     class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
   >
-    <div class="relative bg-white rounded-lg shadow-lg w-full max-w-3xl h-[600px] p-6 flex flex-col justify-between">
+    <div
+      class="relative bg-white rounded-lg shadow-lg w-full max-w-3xl h-[600px] p-6 flex flex-col justify-between"
+    >
       <!-- 로딩 중일 때 중앙 로더 -->
       <div
         v-if="isLoading"
@@ -182,9 +186,7 @@ const closeCreatePostDialog = () => {
         >
           <ArrowLeft class="h-5 w-5 text-gray-500" />
         </button>
-        <h2 class="text-lg font-bold flex-1 text-center">
-          새 게시물 만들기
-        </h2>
+        <h2 class="text-lg font-bold flex-1 text-center">새 게시물 만들기</h2>
         <button
           v-if="step === 1 && images.length > 0"
           @click="handleNext"
@@ -296,14 +298,16 @@ const closeCreatePostDialog = () => {
           <!-- User Info -->
           <div class="flex items-center space-x-2 border-b pb-2">
             <div
-              class="w-8 h-8 rounded-full bg-gray-300 flex-shrink-0"
+              class="w-8 h-8 rounded-full flex-shrink-0"
               :style="
                 userInfo?.profileImage
                   ? `background-image: url(${userInfo.profileImage}); background-size: cover; background-position: center;`
-                  : ''
+                  : `background-image: url(${defaultAvatar}); background-size: cover; background-position: center;`
               "
             ></div>
-            <span class="font-semibold">{{ userInfo?.userName || '귀여운 토끼' }}</span>
+            <span class="font-semibold">{{
+              userInfo?.userName || '귀여운 토끼'
+            }}</span>
           </div>
 
           <!-- Caption Input -->

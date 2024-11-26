@@ -35,12 +35,10 @@ export const useDialogStore = defineStore('dialog', {
       this.selectedPost = null
     },
     openEditPostDialog(post) {
-      console.log('openEditPostDialog called with post:', post)
       this.isEditPostDialogOpen = true
       this.selectedPost = {
         ...post,
       }
-      console.log('selectedPost after update:', this.selectedPost)
     },
     closeEditPostDialog() {
       this.isEditPostDialogOpen = false

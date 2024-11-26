@@ -35,13 +35,13 @@ export const usePostsStore = defineStore('posts', {
     },
 
     async fetchPosts() {
-      if (this.isLoading || !this.hasMore) return
+      if (this.isLoading) return
 
       this.isLoading = true
 
       try {
         const response = await api.get('/api/board', {
-          params: { page: this.page, size: this.size },
+          params: { page: 1, size: this.size },
         })
 
         const fetchedPosts = response.data
@@ -50,19 +50,17 @@ export const usePostsStore = defineStore('posts', {
           this.hasMore = false
         }
 
-        this.posts.push(
-          ...fetchedPosts.map(post => ({
-            id: post.boardId,
-            username: post.userName,
-            avatar: post?.profileImage || defaultAvatar,
-            timeAgo: `${post.createdDate} ${post.createdAt}`,
-            images: post.imageUrls,
-            likes: post.likesCount,
-            caption: post.content,
-            isLiked: post.isLikedByLogInUser,
-            comments: [],
-          })),
-        )
+        this.posts = [...fetchedPosts].map(post => ({
+          id: post.boardId,
+          username: post.userName,
+          avatar: post?.profileImage || defaultAvatar,
+          timeAgo: `${post.createdDate} ${post.createdAt}`,
+          images: post.imageUrls,
+          likes: post.likesCount,
+          caption: post.content,
+          isLiked: post.isLikedByLogInUser,
+          comments: [],
+        }))
 
         // 슬라이드 상태 초기화
         this.currentSlides = this.posts.map(() => 0)

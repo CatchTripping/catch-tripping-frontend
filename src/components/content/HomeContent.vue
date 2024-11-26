@@ -54,10 +54,8 @@ const onMoreClick = post => {
 }
 
 const handleEditPost = post => {
-  console.log('handleEditPost called with post:', post) // 디버깅 로그
   const formattedPost = formatPostData(post)
   dialogStore.openEditPostDialog(formattedPost)
-  console.log('isEditPostDialogOpen:', dialogStore.isEditPostDialogOpen) // 상태 확인
 }
 
 const handleDeletePost = async post => {

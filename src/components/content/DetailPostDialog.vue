@@ -10,7 +10,6 @@ import {
 import { useUserStore } from '@/stores/user.js'
 import { useDialogStore } from '@/stores/dialog'
 import { usePostsStore } from '@/stores/posts.js'
-import { Button } from '@/components/ui/button/index.js'
 import defaultAvatar from '@/assets/no_picture.png'
 import OptionMenu from '@/components/content/OptionMenu.vue'
 import { formatPostData } from '@/utils/formatPostData.js'
@@ -99,6 +98,15 @@ watch(
     await fetchComments() // 댓글 가져오기
   },
   { immediate: true },
+)
+
+watch(
+  () => dialogStore.isDetailPostDialogOpen,
+  async isOpen => {
+    if (!isOpen) {
+      newComment.value = '' // 이전 댓글 초기화
+    }
+  },
 )
 
 // 대댓글 불러오기
