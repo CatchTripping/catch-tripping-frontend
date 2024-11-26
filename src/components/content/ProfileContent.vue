@@ -1,12 +1,21 @@
 <script setup>
-import { computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useDialogStore } from '@/stores/dialog'
 import { usePostsStore } from '@/stores/posts'
 import { useUserStore } from '@/stores/user'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { LogOut } from 'lucide-vue-next'
 import defaultAvatar from '@/assets/no_picture.png'
 import router from '@/router/index.js'
+import api from '../../axios.js'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 
 // Pinia Stores
 const dialogStore = useDialogStore()
@@ -14,7 +23,16 @@ const postsStore = usePostsStore()
 const userStore = useUserStore()
 
 // 유저 정보
-const userInfo = userStore.userInfo
+const userInfo = computed(() => userStore.userInfo)
+
+// 다이얼로그 상태 관리
+const openEditProfileDialog = ref(false)
+const openChangePhotoDialog = ref(false)
+
+// 프로필 이미지 관리
+const temporaryPhoto = ref(null)
+const isLoading = ref(false)
+const error = ref(null)
 
 // 로그아웃 함수
 const logout = async () => {
@@ -37,9 +55,104 @@ const openPostDialog = postId => {
   dialogStore.openDetailPostDialog(postId) // 상세 Dialog 열기
 }
 
-// 프로필 편집으로 이동
+// 프로필 편집 다이얼로그 열기
 const goToEditProfile = () => {
-  router.push('/edit-profile')
+  openEditProfileDialog.value = true
+}
+
+// 사용자 정보 업데이트
+const updateUserInfo = async () => {
+  const success = await userStore.getUserInfo()
+  if (success) {
+    // 사용자 정보가 업데이트되면 Vue의 반응성으로 인해 템플릿도 자동으로 업데이트됩니다.
+  } else {
+    console.error('사용자 정보를 업데이트하는 데 실패했습니다.')
+  }
+}
+
+// 프로필 사진 업로드 핸들러
+const handlePhotoUpload = async event => {
+  const file = event.target.files?.[0]
+  if (file) {
+    try {
+      error.value = null
+      // 이미지 미리보기 설정
+      temporaryPhoto.value = URL.createObjectURL(file)
+      // 다이얼로그 닫기
+      openChangePhotoDialog.value = false
+    } catch (err) {
+      console.error('이미지 업로드 중 오류:', err)
+      error.value = '이미지를 업로드할 수 없습니다.'
+    }
+  }
+}
+
+// 프로필 사진 저장 핸들러
+const handleSavePhoto = async () => {
+  if (!temporaryPhoto.value) return // 저장할 이미지가 없으면 종료
+
+  try {
+    isLoading.value = true
+    error.value = null
+
+    // presigned URL 얻기
+    const response = await api.get('/api/s3/presigned-url', {
+      params: {
+        filename: temporaryPhoto.value.split('/').pop(),
+        method: 'PUT',
+        type: 'profile',
+      },
+    })
+
+    const { url, key } = response.data
+
+    // S3에 이미지 업로드
+    const file = await fetch(temporaryPhoto.value).then(res => res.blob())
+    await api.put(url, file, {
+      headers: {
+        'Content-Type': file.type,
+      },
+    })
+
+    // 서버에 프로필 이미지 업데이트 요청
+    await api.post('/users/profile-image', {
+      imageKey: key,
+    })
+
+    // 사용자 정보 업데이트
+    await updateUserInfo()
+
+    // 임시 이미지 초기화
+    temporaryPhoto.value = null
+    openEditProfileDialog.value = false // 다이얼로그 닫기
+  } catch (err) {
+    console.error('이미지 저장 중 오류:', err)
+    error.value = '이미지를 저장하는 데 실패했습니다.'
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// 프로필 사진 삭제 핸들러
+const handlePhotoDelete = async () => {
+  try {
+    isLoading.value = true
+    error.value = null
+
+    await api.delete('/users/profile-image')
+    await updateUserInfo()
+    temporaryPhoto.value = null
+  } catch (err) {
+    console.error('이미지 삭제 중 오류:', err)
+    error.value = '이미지를 삭제하는 데 실패했습니다.'
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// 프로필 편집 다이얼로그 닫기
+const closeEditProfileDialog = () => {
+  openEditProfileDialog.value = false
 }
 </script>
 
@@ -93,7 +206,94 @@ const goToEditProfile = () => {
       </button>
     </div>
 
-    <!-- Dialog 컴포넌트 -->
+    <!-- 프로필 편집 다이얼로그 -->
+    <Dialog v-model:open="openEditProfileDialog">
+      <DialogContent class="max-w-2xl p-4 space-y-8">
+        <DialogHeader>
+          <DialogTitle class="text-2xl font-semibold text-center mt-4">
+            프로필 편집
+          </DialogTitle>
+        </DialogHeader>
+
+        <div class="bg-white rounded-lg p-6 shadow-sm">
+          <div class="flex items-center gap-4">
+            <div class="relative">
+              <img
+                :src="temporaryPhoto || userInfo?.profileImage || defaultAvatar"
+                alt="Profile photo"
+                class="rounded-full object-cover w-16 h-16"
+              />
+            </div>
+            <div class="flex flex-col">
+              <span class="font-medium">{{ userInfo?.userName }}</span>
+              <Button
+                variant="link"
+                class="text-blue-500 p-0 h-auto font-normal justify-start"
+                @click="openChangePhotoDialog = true"
+              >
+                사진 변경
+              </Button>
+            </div>
+          </div>
+
+          <!-- 사진 변경 다이얼로그 -->
+          <Dialog v-model:open="openChangePhotoDialog">
+            <DialogContent class="max-w-xs p-0">
+              <DialogHeader class="border-b">
+                <DialogTitle class="text-center py-4">
+                  프로필 사진 바꾸기
+                </DialogTitle>
+              </DialogHeader>
+              <div class="flex flex-col">
+                <Label
+                  for="photo-upload"
+                  class="py-3 text-center text-blue-500 border-b cursor-pointer"
+                >
+                  사진 업로드
+                  <Input
+                    id="photo-upload"
+                    type="file"
+                    accept="image/*"
+                    class="hidden"
+                    @change="handlePhotoUpload"
+                  />
+                </Label>
+                <Button
+                  variant="ghost"
+                  class="text-red-500 py-3 border-b rounded-none hover:bg-gray-50"
+                  @click="handlePhotoDelete"
+                >
+                  현재 사진 삭제
+                </Button>
+                <Button
+                  variant="ghost"
+                  class="py-3 rounded-none hover:bg-gray-50"
+                  @click="openChangePhotoDialog = false"
+                >
+                  취소
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          <!-- 저장 및 나가기 버튼 -->
+          <div class="flex justify-end mt-6 gap-2">
+            <Button variant="secondary" @click="closeEditProfileDialog">
+              나가기
+            </Button>
+            <Button
+              variant="primary"
+              :disabled="isLoading || !temporaryPhoto"
+              @click="handleSavePhoto"
+            >
+              저장하기
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+
+    <!-- 다른 다이얼로그 컴포넌트 -->
     <Dialog v-if="dialogStore.isDetailPostDialogOpen" />
   </div>
 </template>
