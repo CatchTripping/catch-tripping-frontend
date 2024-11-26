@@ -12,6 +12,7 @@ import {
 import { useUserStore } from '@/stores/user.js'
 import { useDialogStore } from '@/stores/dialog'
 import api from '../../axios.js'
+import { Button } from '@/components/ui/button'
 
 const dialogStore = useDialogStore()
 const userStore = useUserStore()
@@ -154,7 +155,7 @@ const closeCreatePostDialog = () => {
     v-if="dialogStore.isCreatePostDialogOpen"
     class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
   >
-    <div class="relative bg-white rounded-lg shadow-lg w-full max-w-3xl p-6">
+    <div class="relative bg-white rounded-lg shadow-lg w-full max-w-3xl h-[600px] p-6 flex flex-col justify-between">
       <!-- 로딩 중일 때 중앙 로더 -->
       <div
         v-if="isLoading"
@@ -164,7 +165,7 @@ const closeCreatePostDialog = () => {
       </div>
 
       <!-- Header -->
-      <header class="p-4 border-b flex justify-between items-center">
+      <header class="w-full flex justify-between items-center mb-4">
         <button
           v-if="step === 1"
           @click="closeCreatePostDialog"
@@ -182,7 +183,7 @@ const closeCreatePostDialog = () => {
           <ArrowLeft class="h-5 w-5 text-gray-500" />
         </button>
         <h2 class="text-lg font-bold flex-1 text-center">
-          {{ step === 1 ? '새 게시물 만들기' : '자르기' }}
+          새 게시물 만들기
         </h2>
         <button
           v-if="step === 1 && images.length > 0"
@@ -203,21 +204,27 @@ const closeCreatePostDialog = () => {
       </header>
 
       <!-- Step 1: Image Upload and Viewer -->
-      <div v-if="step === 1" class="p-4">
+      <div
+        v-if="step === 1"
+        class="flex-1 flex flex-col justify-center items-center"
+      >
         <div
           v-if="imagePreviews.length === 0"
-          class="border-dashed border-2 border-gray-300 p-6 text-center"
+          class="border-dashed border-2 border-gray-300 w-full h-full flex flex-col justify-center items-center text-center"
           @dragenter="handleDragEnter"
           @dragleave="handleDragLeave"
           @dragover.prevent
           @drop.prevent="handleDrop"
           :class="{ 'bg-gray-100': isDragging }"
         >
-          <ImagePlus class="h-12 w-12 mx-auto" />
-          <p>사진과 동영상을 여기에 끌어다 놓으세요</p>
-          <button @click="openFileDialog" class="text-blue-500">
+          <ImagePlus class="h-12 w-12 mx-auto mb-5" />
+          <p class="text-xl">사진과 동영상을 여기에 끌어다 놓으세요</p>
+          <Button
+            @click="openFileDialog"
+            class="bg-pink-400 hover:bg-pink-600 text-white mt-5"
+          >
             컴퓨터에서 선택
-          </button>
+          </Button>
           <input
             id="fileInput"
             ref="fileInputRef"
@@ -231,13 +238,15 @@ const closeCreatePostDialog = () => {
 
         <div
           v-else
-          class="relative w-full h-64 flex justify-center items-center"
+          class="relative w-5/6 h-5/6 flex justify-center items-center"
         >
-          <img
-            :src="imagePreviews[currentImageIndex]"
-            alt="Uploaded Image"
-            class="object-contain h-full"
-          />
+          <div class="square-container flex justify-center items-center">
+            <img
+              :src="imagePreviews[currentImageIndex]"
+              alt="Uploaded Image"
+              class="object-cover w-full h-full rounded-md"
+            />
+          </div>
           <button
             v-if="currentImageIndex > 0"
             @click="prevImage"
@@ -256,14 +265,16 @@ const closeCreatePostDialog = () => {
       </div>
 
       <!-- Step 2: Caption and Location Input -->
-      <div v-if="step === 2" class="flex">
+      <div v-if="step === 2" class="flex flex-1">
         <!-- Left side: Image Preview -->
-        <div class="w-2/3 relative">
-          <img
-            :src="imagePreviews[currentImageIndex]"
-            alt="Uploaded Image"
-            class="object-contain w-full h-full"
-          />
+        <div class="w-full relative flex justify-center items-center">
+          <div class="square-container flex justify-center items-center">
+            <img
+              :src="imagePreviews[currentImageIndex]"
+              alt="Uploaded Image"
+              class="object-cover w-full h-full rounded-md"
+            />
+          </div>
           <button
             v-if="currentImageIndex > 0"
             @click="prevImage"
@@ -281,7 +292,7 @@ const closeCreatePostDialog = () => {
         </div>
 
         <!-- Right side: Details form -->
-        <div class="w-1/3 p-4 space-y-4 flex flex-col">
+        <div class="w-2/3 flex flex-col">
           <!-- User Info -->
           <div class="flex items-center space-x-2 border-b pb-2">
             <div
@@ -292,46 +303,18 @@ const closeCreatePostDialog = () => {
                   : ''
               "
             ></div>
-            <!-- User Avatar Placeholder -->
-            <span class="font-semibold">{{
-              userInfo?.userName || '귀여운 토끼'
-            }}</span>
+            <span class="font-semibold">{{ userInfo?.userName || '귀여운 토끼' }}</span>
           </div>
 
           <!-- Caption Input -->
           <textarea
             v-model="caption"
             placeholder="문구 입력..."
-            class="w-full border rounded-lg p-2 resize-none"
-            rows="4"
+            class="flex-1 border rounded-lg p-2 resize-none mt-4"
           ></textarea>
-          <div class="text-right text-sm text-gray-400">
+          <div class="text-right text-sm text-gray-400 mt-2">
             {{ caption.length }}/2,200
           </div>
-
-          <!-- Location Input -->
-          <div class="flex items-center space-x-2 py-2 border-b">
-            <MapPin class="h-5 w-5 text-gray-500" />
-            <input
-              v-model="location"
-              placeholder="위치 추가"
-              class="w-full border-0 focus:ring-0"
-            />
-          </div>
-
-          <!-- Collapsible Settings (Accessibility and Advanced) -->
-          <button
-            class="w-full text-left py-2 border-b flex items-center justify-between"
-          >
-            접근성
-            <ChevronRight class="h-4 w-4 text-gray-500" />
-          </button>
-          <button
-            class="w-full text-left py-2 border-b flex items-center justify-between"
-          >
-            고급 설정
-            <ChevronRight class="h-4 w-4 text-gray-500" />
-          </button>
         </div>
       </div>
     </div>
@@ -349,22 +332,16 @@ const closeCreatePostDialog = () => {
 .bg-black {
   background-color: rgba(0, 0, 0, 0.5);
 }
-
-.loader {
-  border: 2px solid #f3f3f3;
-  border-radius: 50%;
-  border-top: 2px solid #3498db;
-  width: 16px;
-  height: 16px;
-  animation: spin 2s linear infinite;
+.square-container {
+  width: 80%;
+  padding-top: 80%; /* 유지할 비율 */
+  position: relative;
 }
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+.square-container img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 </style>
