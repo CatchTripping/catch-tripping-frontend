@@ -146,6 +146,13 @@ const mouseOutKakaoMapMarker = () => {
   maps.visibleInfo = -1
 }
 
+const getMapPingImageSrc = (index, num) => {
+  return new URL(
+    '/src/assets/map/' + num + '/' + (index + 1) + '.png',
+    import.meta.url,
+  ).href
+}
+
 watch(
   () => props.isMobile,
   () => {
@@ -229,7 +236,7 @@ watch(
             @mouseOverKakaoMapMarker="mouseOverKakaoMapMarker(index)"
             @mouseOutKakaoMapMarker="mouseOutKakaoMapMarker"
             :image="{
-              imageSrc: '/src/assets/map/2/' + (index + 1) + '.png',
+              imageSrc: getMapPingImageSrc(index, 2),
               imageWidth: 39,
               imageHeight: 57,
             }"
@@ -257,7 +264,7 @@ watch(
             @mouseOverKakaoMapMarker="mouseOverKakaoMapMarker(index)"
             @mouseOutKakaoMapMarker="mouseOutKakaoMapMarker"
             :image="{
-              imageSrc: '/src/assets/map/1/' + (index + 1) + '.png',
+              imageSrc: getMapPingImageSrc(index, 1),
               imageWidth: 29,
               imageHeight: 50,
             }"
