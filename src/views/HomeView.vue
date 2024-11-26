@@ -195,7 +195,7 @@ onBeforeUnmount(() => {
           <img
             :src="userStore.userInfo?.profileImage || defaultAvatar"
             alt="User"
-            class="w-10 h-10 rounded-full"
+            class="w-10 h-10 rounded-full object-cover"
           />
           <span v-if="!isCollapsed" class="ml-2">{{
             userStore.userInfo?.userName || '귀여운 토끼'
